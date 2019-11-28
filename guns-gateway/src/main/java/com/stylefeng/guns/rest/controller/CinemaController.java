@@ -18,4 +18,10 @@ public class CinemaController {
         BaseResVO cinemaById = cinemaTestService.getCinemaById(id);
         return cinemaById;
     }
+
+    @RequestMapping("getFields")
+    public BaseResVO getFields(Integer cinemaId){
+        BaseResVO fields = cinemaTestService.getFieldsById(cinemaId);
+        return fields;
+    }
 }

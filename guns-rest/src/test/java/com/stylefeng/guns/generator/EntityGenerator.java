@@ -30,6 +30,7 @@ public class EntityGenerator {
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
         gc.setOutputDir("E:\\develop\\git_repository\\project3\\guns-film\\src\\main\\java");//这里写你自己的java目录
+
         gc.setFileOverride(true);//是否覆盖
         gc.setActiveRecord(true);
         gc.setEnableCache(false);// XML 二级缓存
@@ -52,6 +53,7 @@ public class EntityGenerator {
         dsc.setUsername("root");
         dsc.setPassword("123456");
         dsc.setUrl("jdbc:mysql://127.0.0.1:3306/project3?autoReconnect=true&useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8");
+
         mpg.setDataSource(dsc);
 
         // 策略配置
