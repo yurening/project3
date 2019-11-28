@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ResponseBody
 @RequestMapping("user")
 public class UserController {
-    @Reference(interfaceClass = UserTestService.class)
+    @Reference(interfaceClass = UserTestService.class,check = false)
     UserTestService userTestService;
     @RequestMapping("detail")
     public BaseResVO userDetail(Integer id){
