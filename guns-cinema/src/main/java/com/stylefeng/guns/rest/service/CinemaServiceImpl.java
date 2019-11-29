@@ -2,10 +2,7 @@ package com.stylefeng.guns.rest.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.stylefeng.guns.rest.common.persistence.dao.MtimeCinemaTMapper;
-import com.stylefeng.guns.rest.common.persistence.dao.MtimeFieldTMapper;
-import com.stylefeng.guns.rest.common.persistence.dao.MtimeFilmTMapper;
-import com.stylefeng.guns.rest.common.persistence.dao.MtimeHallFilmInfoTMapper;
+import com.stylefeng.guns.rest.common.persistence.dao.*;
 import com.stylefeng.guns.rest.common.persistence.model.*;
 import com.stylefeng.guns.rest.vo.BaseResVO;
 import org.springframework.beans.BeanUtils;
@@ -30,6 +27,9 @@ public class CinemaServiceImpl implements CinemaTestService {
 
     @Autowired
     MtimeHallFilmInfoTMapper mtimeHallFilmInfoTMapper;
+
+    @Autowired
+    MtimeHallDictTMapper mtimeHallDictTMapper;
 
     @Override
     public BaseResVO getCinemaById(Integer id) {
@@ -93,6 +93,52 @@ public class CinemaServiceImpl implements CinemaTestService {
         cinemaFields.setFilmList(filmList);
         BaseResVO baseResVO = new BaseResVO();
         baseResVO.setData(cinemaFields);
+        baseResVO.setStatus(0);
+        baseResVO.setImgPre("http://img.meetingshop.cn/");
+        return baseResVO;
+    }
+
+    @Override
+    public BaseResVO getFieldInfo(Integer id, Integer fieldId) {
+        //首先根据id查找出影院
+        MtimeCinemaT cinemaInfo1 = mtimeCinemaTMapper.selectById(id);
+        EntityWrapper<MtimeFieldT> entityWrapper = new EntityWrapper<>();
+        entityWrapper.eq("cinema_id",id);
+        entityWrapper.eq("UUID",fieldId);
+        //再根据影院id和放映厅id查找出具体的放映厅和时间
+        List<MtimeFieldT> mtimeFieldTS = mtimeFieldTMapper.selectList(entityWrapper);
+        MtimeFieldT mtimeFieldT = mtimeFieldTS.get(0);
+        EntityWrapper<MtimeHallFilmInfoT> entityWrapper1 = new EntityWrapper<>();
+        //从具体的放映厅获得的影片id查到影片
+        entityWrapper1.eq("film_id",mtimeFieldT.getFilmId());
+        List<MtimeHallFilmInfoT> mtimeHallFilmInfoTS = mtimeHallFilmInfoTMapper.selectList(entityWrapper1);
+        MtimeHallFilmInfoT mtimeHallFilmInfoT = mtimeHallFilmInfoTS.get(0);
+        EntityWrapper<MtimeHallDictT> entityWrapper2 = new EntityWrapper<>();
+        entityWrapper2.eq("UUID",mtimeFieldT.getHallId());
+        //根据放映厅获取的hallId查询具体的hall
+        List<MtimeHallDictT> mtimeHallDictTS = mtimeHallDictTMapper.selectList(entityWrapper2);
+        MtimeHallDictT mtimeHallDictT = mtimeHallDictTS.get(0);
+        MtimeHallDictT2 mtimeHallDictT2 = new MtimeHallDictT2();
+        CinemaFieldsInfo cinemaFieldsInfo = new CinemaFieldsInfo();
+        MtimeCinemaT2 cinemaInfo = new MtimeCinemaT2();
+        MtimeHallFilmInfoT2 mtimeHallFilmInfoT2 = new MtimeHallFilmInfoT2();
+        //将查询到的数据封装成我们需要返回的json数据
+        BeanUtils.copyProperties(cinemaInfo1,cinemaInfo);
+        BeanUtils.copyProperties(mtimeHallDictT,mtimeHallDictT2);
+        BeanUtils.copyProperties(mtimeHallFilmInfoT,mtimeHallFilmInfoT2);
+        cinemaInfo.setCinemaId(cinemaInfo1.getUuid());
+        cinemaInfo.setImgUrl(cinemaInfo1.getImgAddress());
+        mtimeHallDictT2.setSoldSeats("1,2,3,5,12");//假的，因为没有订单
+        mtimeHallDictT2.setPrice(mtimeFieldT.getPrice());
+        mtimeHallDictT2.setHallName(mtimeHallDictT.getShowName());
+        mtimeHallDictT2.setSeatFile(mtimeHallDictT.getSeatAddress());
+        mtimeHallDictT2.setHallFieldId(mtimeFieldT.getFieldId());
+        mtimeHallFilmInfoT2.setFilmType(mtimeHallFilmInfoT.getFilmLanguage());
+        cinemaFieldsInfo.setCinemaInfo(cinemaInfo);
+        cinemaFieldsInfo.setFilmInfo(mtimeHallFilmInfoT2);
+        cinemaFieldsInfo.setHallInfo(mtimeHallDictT2);
+        BaseResVO baseResVO = new BaseResVO();
+        baseResVO.setData(cinemaFieldsInfo);
         baseResVO.setStatus(0);
         baseResVO.setImgPre("http://img.meetingshop.cn/");
         return baseResVO;

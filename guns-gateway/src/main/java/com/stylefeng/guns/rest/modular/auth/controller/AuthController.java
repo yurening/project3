@@ -8,6 +8,7 @@ import com.stylefeng.guns.rest.modular.auth.controller.dto.AuthResponse;
 import com.stylefeng.guns.rest.modular.auth.util.JwtTokenUtil;
 import com.stylefeng.guns.rest.modular.auth.validator.IReqValidator;
 import com.stylefeng.guns.rest.service.UserService;
+import com.stylefeng.guns.rest.vo.BaseResVO;
 import com.stylefeng.guns.rest.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,7 +41,7 @@ public class AuthController {
     private RedisTemplate redisTemplate;
 
     @RequestMapping(value = "${jwt.auth-path}")
-    public ResponseEntity<?> createAuthenticationToken(AuthRequest authRequest) {
+    public BaseResVO createAuthenticationToken(AuthRequest authRequest) {
 
 //        boolean validate = reqValidator.validate(authRequest);
         UserVO userVO = userService.login(authRequest.getUserName(), authRequest.getPassword());
@@ -49,9 +50,9 @@ public class AuthController {
             final String token = jwtTokenUtil.generateToken(authRequest.getUserName(), randomKey);
             redisTemplate.opsForValue().set(token, userVO);
             redisTemplate.expire(token, 7, TimeUnit.DAYS);
-            return ResponseEntity.ok(new AuthResponse(token, randomKey));
+            return BaseResVO.ok(new AuthResponse(token, randomKey));
         } else {
-            throw new GunsException(BizExceptionEnum.AUTH_REQUEST_ERROR);
+            return BaseResVO.fail(1, "用户名或密码错误");
         }
     }
 }
