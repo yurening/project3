@@ -33,6 +33,7 @@ public class AuthController {
 
         boolean validate = reqValidator.validate(authRequest);
 
+
         if (validate) {
             final String randomKey = jwtTokenUtil.getRandomKey();
             final String token = jwtTokenUtil.generateToken(authRequest.getUserName(), randomKey);
