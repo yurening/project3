@@ -1,5 +1,7 @@
 package com.stylefeng.guns.rest.service;
 
+import com.stylefeng.guns.rest.vo.UserVO;
+
 public interface UserService {
-    Integer login(String username, String password);
+    UserVO login(String username, String password);
 }
