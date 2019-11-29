@@ -17,6 +17,8 @@ import java.util.List;
 @ResponseBody
 @RequestMapping("cinema")
 public class CinemaController {
+
+
     @Reference(interfaceClass = CinemaTestService.class,check = false)
     private CinemaTestService cinemaTestService;
     @RequestMapping("cinema")
@@ -30,6 +32,12 @@ public class CinemaController {
         BaseResVO fields = cinemaTestService.getFieldsById(cinemaId);
         return fields;
     }
+    @RequestMapping("getFieldInfo")
+    public BaseResVO getFieldInfo(Integer cinemaId,Integer fieldId){
+        BaseResVO field = cinemaTestService.getFieldInfo(cinemaId,fieldId);
+        return field;
+
+    }
 
     @Reference(interfaceClass = IMtimeCinemaTService.class,check = false)
     IMtimeCinemaTService cinemaTService;
@@ -40,7 +48,8 @@ public class CinemaController {
     }
 
     @RequestMapping("getCondition")
-    public CinemaBaseVO<CinemaConditionVO> getCondition(Integer brandId, Integer hallType, Integer areaId){
-        return cinemaTService.getCinemaCondition(brandId,areaId,hallType);
+    public CinemaBaseVO<CinemaConditionVO> getCondition(Integer brandId, Integer hallType, Integer areaId) {
+        return cinemaTService.getCinemaCondition(brandId, areaId, hallType);
     }
+
 }
