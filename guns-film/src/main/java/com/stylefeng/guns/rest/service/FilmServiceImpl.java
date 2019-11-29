@@ -217,6 +217,7 @@ public class FilmServiceImpl implements FilmService {
             }
             sourceInfoBeans.add(sourceInfoBean);
         }
+        dataBean.setSourceInfo(sourceInfoBeans);
         //从mtime_year_dict_t查询出所有数据
         List<ConditionReturn.DataBean.YearInfoBean> yearInfoBeans = new ArrayList<>();
         EntityWrapper<MtimeYearDictT> mtimeYearDictTEntityWrapper = new EntityWrapper<>();
