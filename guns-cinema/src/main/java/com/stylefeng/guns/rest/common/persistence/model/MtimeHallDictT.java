@@ -1,28 +1,23 @@
 package com.stylefeng.guns.rest.common.persistence.model;
 
-import com.baomidou.mybatisplus.enums.IdType;
-import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.activerecord.Model;
 import com.baomidou.mybatisplus.annotations.TableField;
-import com.baomidou.mybatisplus.activerecord.Model;
+import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+
 import java.io.Serializable;
-
-
-import com.baomidou.mybatisplus.activerecord.Model;
-import com.baomidou.mybatisplus.annotations.TableName;
-import java.io.Serializable;
-
 
 /**
  * <p>
- * 区域信息表
+ * 地域信息表
  * </p>
  *
  * @author stylefeng
- * @since 2019-11-28
+ * @since 2019-11-29
  */
-@TableName("mtime_source_dict_t")
-public class MtimeSourceDictT extends Model<MtimeSourceDictT> {
+@TableName("mtime_hall_dict_t")
+public class MtimeHallDictT extends Model<MtimeHallDictT> {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,6 +31,11 @@ public class MtimeSourceDictT extends Model<MtimeSourceDictT> {
      */
     @TableField("show_name")
     private String showName;
+    /**
+     * 座位文件存放地址
+     */
+    @TableField("seat_address")
+    private String seatAddress;
 
 
     public Integer getUuid() {
@@ -54,6 +54,14 @@ public class MtimeSourceDictT extends Model<MtimeSourceDictT> {
         this.showName = showName;
     }
 
+    public String getSeatAddress() {
+        return seatAddress;
+    }
+
+    public void setSeatAddress(String seatAddress) {
+        this.seatAddress = seatAddress;
+    }
+
     @Override
     protected Serializable pkVal() {
         return this.uuid;
@@ -61,9 +69,10 @@ public class MtimeSourceDictT extends Model<MtimeSourceDictT> {
 
     @Override
     public String toString() {
-        return "MtimeSourceDictT{" +
+        return "MtimeHallDictT{" +
         "uuid=" + uuid +
         ", showName=" + showName +
+        ", seatAddress=" + seatAddress +
         "}";
     }
 }
