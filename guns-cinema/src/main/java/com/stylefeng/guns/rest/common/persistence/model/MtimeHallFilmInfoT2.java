@@ -116,8 +116,8 @@ public class MtimeHallFilmInfoT2 extends Model<MtimeHallFilmInfoT2> {
         return filmType;
     }
 
-    public void setFilmLanguage(String filmLanguage) {
-        this.filmType = filmLanguage;
+    public void setFilmType(String filmType) {
+        this.filmType = filmType;
     }
 
     public String getActors() {

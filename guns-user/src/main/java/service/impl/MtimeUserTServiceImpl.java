@@ -1,10 +1,12 @@
 package service.impl;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.stylefeng.guns.rest.common.persistence.model.MtimeUserT;
 import com.stylefeng.guns.rest.common.persistence.dao.MtimeUserTMapper;
+
+import org.springframework.stereotype.Component;
 import service.IMtimeUserTService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -14,7 +16,8 @@ import org.springframework.stereotype.Service;
  * @author StephenAndJerry
  * @since 2019-11-28
  */
-@Service
+@Component
+@Service(interfaceClass = IMtimeUserTService.class)
 public class MtimeUserTServiceImpl extends ServiceImpl<MtimeUserTMapper, MtimeUserT> implements IMtimeUserTService {
 
 }
