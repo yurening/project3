@@ -20,7 +20,6 @@ import java.io.Serializable;
 public class MtimeFilmT extends Model<MtimeFilmT> {
 
     private static final long serialVersionUID = 1L;
-
     /**
      * 主键编号
      */

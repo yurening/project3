@@ -4,6 +4,13 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.stylefeng.guns.rest.service.UserService;
 import com.stylefeng.guns.rest.vo.BaseResVO;
 import com.stylefeng.guns.rest.vo.UserVO;
+import com.stylefeng.guns.rest.config.properties.JwtProperties;
+import com.stylefeng.guns.rest.service.UserService;
+import com.stylefeng.guns.rest.vo.BaseResVO;
+import com.stylefeng.guns.rest.vo.UserVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import com.stylefeng.guns.rest.vo.BaseResVO;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,8 +22,14 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("user")
 public class UserController {
 
-    @Reference(interfaceClass = UserService.class,check = false)
-    private UserService userService;
+    @Reference(interfaceClass = UserService.class, check = false)
+    UserService userService;
+
+    @Autowired
+    private JwtProperties jwtProperties;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @RequestMapping("register")
     public BaseResVO register(UserVO userVO,String password){
@@ -53,7 +66,7 @@ public class UserController {
      * }
      */
     @RequestMapping("getUserInfo")
-    public BaseResVO getUserInfo(String username, HttpServletRequest request) {
+    public BaseResVO getUserInfo(HttpServletRequest request) {
         final String token = request.getHeader(jwtProperties.getHeader()).substring(7);
         UserVO userVO = (UserVO) redisTemplate.opsForValue().get(token);
         return BaseResVO.ok(userVO);
@@ -71,4 +84,16 @@ public class UserController {
                 return BaseResVO.fail(999, "服务器异常！");
         }
     }
+
+
+    @RequestMapping("updateUserInfo")
+    public BaseResVO updateUserInfo(UserVO userVO, HttpServletRequest request) {
+        userService.updateUserInfo(userVO);
+        final String token = request.getHeader(jwtProperties.getHeader()).substring(7);
+        redisTemplate.opsForValue().set(token, userVO);
+        return BaseResVO.ok(userVO);
+    }
 }
+
+
+

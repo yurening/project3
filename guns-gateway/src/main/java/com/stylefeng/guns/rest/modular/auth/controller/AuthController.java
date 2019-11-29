@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 请求验证的
@@ -38,7 +39,6 @@ public class AuthController {
     @Autowired
     private RedisTemplate redisTemplate;
 
-
     @RequestMapping(value = "${jwt.auth-path}")
     public ResponseEntity<?> createAuthenticationToken(AuthRequest authRequest) {
 
@@ -47,8 +47,8 @@ public class AuthController {
         if (userVO != null) {
             final String randomKey = jwtTokenUtil.getRandomKey();
             final String token = jwtTokenUtil.generateToken(authRequest.getUserName(), randomKey);
-
-
+            redisTemplate.opsForValue().set(token, userVO);
+            redisTemplate.expire(token, 7, TimeUnit.DAYS);
             return ResponseEntity.ok(new AuthResponse(token, randomKey));
         } else {
             throw new GunsException(BizExceptionEnum.AUTH_REQUEST_ERROR);
