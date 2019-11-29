@@ -58,9 +58,10 @@ public class AuthFilter extends OncePerRequestFilter {
             Object o = redisTemplate.opsForValue().get(authToken);
             if (o != null) {
                 redisTemplate.expire(authToken, 7, TimeUnit.DAYS);
-            }
-            chain.doFilter(request, response);
-            return;
+                chain.doFilter(request, response);
+                return;
+            }.
+
         }
         response.setContentType("*/*;charset=utf-8");
         response.getWriter().println("<script>alert(\"请先登录~\")</script>");
