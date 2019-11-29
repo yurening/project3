@@ -139,17 +139,19 @@ public class FilmServiceImpl implements FilmService {
                                    Integer catId, Integer sourceId,
                                    Integer yearId, Integer nowPage, Integer pageSize) {
         EntityWrapper<MtimeFilmT> mtimeFilmTEntityWrapper = new EntityWrapper<>();
-        String sortIds = String.valueOf(sortId);
-        mtimeFilmTEntityWrapper.eq("film_status",showType).like("film_cats",sortIds).eq("film_source",sourceId);
+        String catsId = String.valueOf(catId);
+        mtimeFilmTEntityWrapper.eq("film_status",showType).like("film_cats",catsId).eq("film_source",sourceId);
         mtimeFilmTEntityWrapper.eq("film_date",yearId);
-        if (sortId==1){
-            mtimeFilmTEntityWrapper.orderBy("film_box_office",false);
-        }
-        if (sortId==2){
-            mtimeFilmTEntityWrapper.orderBy("film_time",false);
-        }
-        if (sortId==3){
-            mtimeFilmTEntityWrapper.orderBy("film_score",false);
+        if (sortId!=null) {
+            if (sortId == 1) {
+                mtimeFilmTEntityWrapper.orderBy("film_box_office", false);
+            }
+            if (sortId == 2) {
+                mtimeFilmTEntityWrapper.orderBy("film_time", false);
+            }
+            if (sortId == 3) {
+                mtimeFilmTEntityWrapper.orderBy("film_score", false);
+            }
         }
         List<MtimeFilmT> mtimeFilmTS = mtimeFilmTMapper.selectList(mtimeFilmTEntityWrapper);
 
