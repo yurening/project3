@@ -62,6 +62,7 @@ public class AuthFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
+        response.setContentType("*/*;charset=utf-8");
         response.getWriter().println("<script>alert(\"请先登录~\")</script>");
         response.setHeader("refresh", "0;url=http://www.baidu.com");
         }
