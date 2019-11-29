@@ -11,11 +11,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ResponseBody
 @RequestMapping("cinema")
 public class CinemaController {
-    @Reference(interfaceClass = CinemaTestService.class,check=false)
+
+
+    @Reference(interfaceClass = CinemaTestService.class,check = false)
     private CinemaTestService cinemaTestService;
     @RequestMapping("cinema")
     public BaseResVO cinema(Integer id){
         BaseResVO cinemaById = cinemaTestService.getCinemaById(id);
         return cinemaById;
+    }
+
+    @RequestMapping("getFields")
+    public BaseResVO getFields(Integer cinemaId){
+        BaseResVO fields = cinemaTestService.getFieldsById(cinemaId);
+        return fields;
     }
 }

@@ -17,18 +17,17 @@ public class BaseResVO<T> implements Serializable {
     Integer totalPage;
 
 
-    /*public static BaseResVO ok(Object data){
-        BaseResVO BaseResVO = new BaseResVO();
-        BaseResVO.setErrmsg("成功");
-        BaseResVO.setData(data);
-        BaseResVO.setErrno(0);
-        return BaseResVO;
+    public static <T> BaseResVO ok(T data){
+        BaseResVO<T> baseResVO = new BaseResVO<>();
+        baseResVO.setStatus(0);
+        baseResVO.setData(data);
+        return baseResVO;
     }
 
-    public static BaseResVO fail(int errno,String errmsg){
-        BaseResVO BaseResVO = new BaseResVO();
-        BaseResVO.setErrno(errno);
-        BaseResVO.setErrmsg(errmsg);
-        return BaseResVO;
-    }*/
+    public static BaseResVO fail(int errno,String msg){
+        BaseResVO baseResVO = new BaseResVO();
+        baseResVO.setStatus(errno);
+        baseResVO.setMsg(msg);
+        return baseResVO;
+    }
 }
