@@ -6,16 +6,16 @@ import com.baomidou.mybatisplus.enums.IdType;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
-public class CinemaFields extends Model<CinemaFields> {
-
+public class CinemaFieldsInfo extends Model<CinemaFields> {
     private static final long serialVersionUID = 1L;
 
     MtimeCinemaT2 cinemaInfo;
 
-    List<MtimeHallFilmInfoT2> filmList;
+    MtimeHallFilmInfoT2 filmInfo;
+
+    MtimeHallDictT2 hallInfo;
 
     @TableId(value = "UUID", type = IdType.AUTO)
     private Integer uuid;
@@ -24,4 +24,5 @@ public class CinemaFields extends Model<CinemaFields> {
     protected Serializable pkVal() {
         return this.uuid;
     }
+
 }

@@ -2,7 +2,6 @@ package com.stylefeng.guns.rest.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.stylefeng.guns.core.util.ToolUtil;
 import com.stylefeng.guns.rest.common.persistence.dao.MtimeUserTMapper;
 import com.stylefeng.guns.rest.common.persistence.model.MtimeUserT;
 import com.stylefeng.guns.rest.service.UserService;
@@ -31,6 +30,34 @@ public class UserServiceImpl implements UserService {
             return userVO;
         }
         return null;
+    }
+
+
+    @Override
+    public Integer register(UserVO userVO, String password) {
+        EntityWrapper<MtimeUserT> wrapper = new EntityWrapper<>();
+        wrapper.eq("user_name",userVO.getUserName());
+        List<MtimeUserT> users = userMapper.selectList(wrapper);
+        if (users.size()>0) {return 1;}
+        else {
+            MtimeUserT mtimeUserT = new MtimeUserT();
+            BeanUtils.copyProperties(mtimeUserT,userVO);
+            mtimeUserT.setUserPwd(password);
+            userMapper.insert(mtimeUserT);
+        }
+        return 0;
+    }
+
+    @Override
+    public Integer check(String username) {
+        EntityWrapper<MtimeUserT> wrapper = new EntityWrapper<>();
+        wrapper.eq("user_name",username);
+        List<MtimeUserT> users = userMapper.selectList(wrapper);
+        if (users.size()>0) {return 1;}
+        else {
+            return 0;
+        }
+
     }
 
     @Override

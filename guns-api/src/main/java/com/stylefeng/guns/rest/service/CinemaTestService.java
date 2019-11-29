@@ -6,4 +6,6 @@ public interface CinemaTestService {
     BaseResVO getCinemaById(Integer id);
 
     BaseResVO getFieldsById(Integer id);
+
+    BaseResVO getFieldInfo(Integer cinemaId, Integer fieldId);
 }
