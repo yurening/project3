@@ -1,7 +1,12 @@
 package com.stylefeng.guns.rest.service;
 
-public interface UserService {
-    Integer login(String username, String password);
+import com.stylefeng.guns.rest.vo.UserVO;
 
-    Integer register(String username, String password);
+public interface UserService {
+    UserVO login(String username, String password);
+
+    Integer register(UserVO userVO,String password);
+
+    Integer check(String username);
+
 }
