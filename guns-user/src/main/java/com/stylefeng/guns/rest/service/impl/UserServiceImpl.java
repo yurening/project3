@@ -32,4 +32,12 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    @Override
+    public void updateUserInfo(UserVO userVO) {
+        MtimeUserT user = new MtimeUserT();
+        BeanUtils.copyProperties(userVO, user);
+        userMapper.updateById(user);
+
+    }
 }
