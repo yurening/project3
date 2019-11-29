@@ -5,7 +5,6 @@ import com.stylefeng.guns.rest.vo.UserVO;
 public interface UserService {
     UserVO login(String username, String password);
 
-
     Integer register(UserVO userVO,String password);
 
     Integer check(String username);

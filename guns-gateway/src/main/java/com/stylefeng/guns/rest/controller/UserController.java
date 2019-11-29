@@ -5,12 +5,8 @@ import com.stylefeng.guns.rest.service.UserService;
 import com.stylefeng.guns.rest.vo.BaseResVO;
 import com.stylefeng.guns.rest.vo.UserVO;
 import com.stylefeng.guns.rest.config.properties.JwtProperties;
-import com.stylefeng.guns.rest.service.UserService;
-import com.stylefeng.guns.rest.vo.BaseResVO;
-import com.stylefeng.guns.rest.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import com.stylefeng.guns.rest.vo.BaseResVO;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,11 +30,18 @@ public class UserController {
     @RequestMapping("register")
     public BaseResVO register(UserVO userVO,String password){
         Integer status = userService.register(userVO,password);
-        switch (status) {
-            case 0:return BaseResVO.fail(0,"用户注册成功！");
-            case 1:return BaseResVO.fail(1,"用户已经注册！");
-            default:return BaseResVO.fail(999,"服务器异常！");
+        if (status == 0) {
+            return BaseResVO.fail(0,"用户注册成功！");
+        } else {
+            return BaseResVO.fail(1,"用户已经注册！");
         }
+    }
+
+    @RequestMapping("logout")
+    public BaseResVO logout(HttpServletRequest request) {
+        final String token = request.getHeader(jwtProperties.getHeader()).substring(7);
+        redisTemplate.delete(token);
+        return BaseResVO.ok(null);
     }
 
     /**@获取用户个人信息

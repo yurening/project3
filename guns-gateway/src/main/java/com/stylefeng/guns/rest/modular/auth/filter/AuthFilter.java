@@ -43,11 +43,14 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (request.getServletPath().equals("/" + jwtProperties.getAuthPath())) {
-            chain.doFilter(request, response);
-            return;
+        boolean doIntercept = false;
+        for (String intercept : jwtProperties.getIntercept().split(",")) {
+            if (request.getServletPath().contains(intercept)) {
+                doIntercept = true;
+                break;
+            }
         }
-        if (!(request.getServletPath().contains("/order/") || request.getServletPath().contains("/user/"))) {
+        if (!doIntercept) {
             chain.doFilter(request, response);
             return;
         }
@@ -58,10 +61,11 @@ public class AuthFilter extends OncePerRequestFilter {
             Object o = redisTemplate.opsForValue().get(authToken);
             if (o != null) {
                 redisTemplate.expire(authToken, 7, TimeUnit.DAYS);
+                chain.doFilter(request, response);
+                return;
             }
-            chain.doFilter(request, response);
-            return;
         }
+        response.setContentType("*/*;charset=utf-8");
         response.getWriter().println("<script>alert(\"请先登录~\")</script>");
         response.setHeader("refresh", "0;url=http://www.baidu.com");
         }
