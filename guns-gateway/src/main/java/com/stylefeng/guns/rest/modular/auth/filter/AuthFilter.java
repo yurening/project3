@@ -43,11 +43,14 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (request.getServletPath().equals("/" + jwtProperties.getAuthPath())) {
-            chain.doFilter(request, response);
-            return;
+        boolean doIntercept = false;
+        for (String intercept : jwtProperties.getIntercept().split(",")) {
+            if (request.getServletPath().contains(intercept)) {
+                doIntercept = true;
+                break;
+            }
         }
-        if (!(request.getServletPath().contains("/order/") || request.getServletPath().contains("/user/"))) {
+        if (!doIntercept) {
             chain.doFilter(request, response);
             return;
         }
