@@ -46,7 +46,7 @@ public class UserController {
         return BaseResVO.ok(null);
     }
 
-    /**@获取用户个人信息
+    /** 获取用户个人信息
      *{
      * 	"data":{
      * 		"address":"12312",
@@ -78,8 +78,8 @@ public class UserController {
     }
 
 
-    /**@校验用户名
-     *
+    /**
+     * 校验用户名
      * */
     @RequestMapping("check")
     public BaseResVO check(String username) {

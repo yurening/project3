@@ -43,23 +43,14 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        // 放行OPTIONS请求
         if (request.getMethod().equals("OPTIONS")) {
             chain.doFilter(request, response);
             return;
         }
-        boolean doIntercept = false;
-        for (String intercept : jwtProperties.getIntercept().split(",")) {
-            if (request.getServletPath().contains(intercept)) {
-                doIntercept = true;
-                break;
-            }
-        }
-        if (!doIntercept) {
-            chain.doFilter(request, response);
-            return;
-        }
+
+        // 只要携带tooken并且该tooken有效就刷新并放行
         final String requestHeader = request.getHeader(jwtProperties.getHeader());
-        // 这里改成用redis去验证token是否有效
         if (requestHeader != null) {
             String authToken = requestHeader.substring(7);
             Object o = redisTemplate.opsForValue().get(authToken);
@@ -69,6 +60,27 @@ public class AuthFilter extends OncePerRequestFilter {
                 return;
             }
         }
+
+        // 没有携带tooken则判断是否拦截
+        boolean doIntercept = false;
+        for (String intercept : jwtProperties.getIntercept().split(",")) {
+            if (request.getServletPath().contains(intercept)) {
+                doIntercept = true;
+                break;
+            }
+        }
+        if (doIntercept) {
+            request.getRequestDispatcher("/login").forward(request, response);
+            return;
+        }
+
+        // 不需要拦截则放行
+        chain.doFilter(request, response);
+    }
+}
+
+
+
 //        不起作用（貌似是因为前端的router）
 //        response.setContentType("text/html;charset=utf-8");
 //        response.getWriter().println("<script>alert(\"请先登录~\")</script>");
@@ -76,8 +88,7 @@ public class AuthFilter extends OncePerRequestFilter {
 //        重定向也一样不行
 //        response.sendRedirect("http://www.baidu.com");
 
-          request.getRequestDispatcher("/login").forward(request, response);
-        }
+
 
 
 
@@ -99,4 +110,4 @@ public class AuthFilter extends OncePerRequestFilter {
 //            RenderUtil.renderJson(response, new ErrorTip(BizExceptionEnum.TOKEN_ERROR.getCode(), BizExceptionEnum.TOKEN_ERROR.getMessage()));
 //            return;
 //        }
-    }
+
