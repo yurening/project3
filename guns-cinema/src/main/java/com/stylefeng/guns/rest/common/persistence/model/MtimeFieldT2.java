@@ -79,6 +79,10 @@ public class MtimeFieldT2 extends Model<MtimeFieldT2> {
         return fieldId;
     }
 
+    public void setFieldId(Integer fieldId) {
+        this.fieldId = fieldId;
+    }
+
     public void setUuid(Integer uuid) {
         this.fieldId = uuid;
     }

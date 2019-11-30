@@ -22,8 +22,6 @@ public class SearchFilmVO implements Serializable {
     private String info03;
     //影片详情以及演员详情
     private Info04VO info04;
-
-    //imgVO
-    private SearchImgVO imgVO;
-    private String filmId;
+/*
+    private String filmId;*/
 }

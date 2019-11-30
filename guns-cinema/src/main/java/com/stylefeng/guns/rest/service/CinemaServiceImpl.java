@@ -84,6 +84,7 @@ public class CinemaServiceImpl implements CinemaTestService {
                 MtimeFieldT2 mtimeFieldT2 = new MtimeFieldT2();
                 BeanUtils.copyProperties(mtimeFieldT,mtimeFieldT2);
                 mtimeFieldT2.setLanguage(mtimeHallFilmInfoT.getFilmLanguage());
+                mtimeFieldT2.setFieldId(mtimeFieldT.getFieldId());
                 mtimeFieldT2List.add(mtimeFieldT2);
             }
             mtimeHallFilmInfoT2.setFilmFields(mtimeFieldT2List);

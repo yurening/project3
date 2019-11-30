@@ -10,5 +10,5 @@ public class CinemaConditionVO implements Serializable {
     private static final long serialVersionUID = 520061771637796486L;
     List<AreaVO> areaList;
     List<BrandVO> brandList;
-    List<HallTypeVO> hallTypeList;
+    List<HallTypeVO> halltypeList;
 }
