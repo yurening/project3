@@ -52,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
         EntityWrapper<MoocOrderT> orderWrapper = new EntityWrapper<>();
         List<MoocOrderT> moocOrderTS = moocOrderTMapper.selectList(orderWrapper);
         String seatsIds = new String();
+        String[] split2 = seatsIds.split(",");
         for (MoocOrderT moocOrderT : moocOrderTS) {
             seatsIds = seatsIds + moocOrderT.getSeatsIds() + ",";
         }
@@ -60,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
         fieldWrapper.eq("UUID",fieldId);
         List<MtimeFieldT> mtimeFieldTS = mtimeFieldTMapper.selectList(fieldWrapper);
         MtimeFieldT mtimeFieldT = mtimeFieldTS.get(0);
-        boolean isNotExist = false;
+        boolean isNotExist = true;
         Integer hallId = mtimeFieldT.getHallId();
         EntityWrapper<MtimeHallDictT> hallWrapper = new EntityWrapper<>();
         hallWrapper.eq("UUID",hallId);
@@ -72,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
         //String s1 = IOUtils.toString(areaRes.getInputStream(), Charset.forName("UTF-8"));
         String s1 = IOUtils.toString(fileInputStream, Charset.forName("UTF-8"));
         String ids = (String) JSONPath.read(s1, "$ids");
-        System.out.println(ids);
+        String[] split1 = ids.split(",");
         //File file = new File("static\\" + seatAddress);
         /*FileReader reader = new FileReader(file);*/
         /*BufferedReader bufferedReader = new BufferedReader(reader);
@@ -86,9 +87,11 @@ public class OrderServiceImpl implements OrderService {
         Seats seats = parserSeats(s1);*/
         //String ids = seats.getIds();
         for (String s : split) {
-            if (ids.contains(s)){
-                isNotExist = false;
-                break;
+            for (String s2 : split1) {
+                if (s2.equals(s)){
+                    isNotExist = false;
+                    break;
+                }
             }
         }
         if (isNotExist){
@@ -98,9 +101,11 @@ public class OrderServiceImpl implements OrderService {
         }
         boolean isSold = false;
         for (String s : split) {
-            if (seatsIds.contains(s)){
-                isSold = true;
-                break;
+            for (String s2 : split2) {
+                if (s2.equals(s)){
+                    isSold = true;
+                    break;
+                }
             }
         }
         if (isSold){

@@ -31,6 +31,9 @@ public class CinemaServiceImpl implements CinemaTestService {
     @Autowired
     MtimeHallDictTMapper mtimeHallDictTMapper;
 
+    @Autowired
+    MoocOrderTMapper moocOrderTMapper;
+
     @Override
     public BaseResVO getCinemaById(Integer id) {
         MtimeFilmT mtimeFilmT = mtimeFilmTMapper.selectById(id);
@@ -129,7 +132,20 @@ public class CinemaServiceImpl implements CinemaTestService {
         BeanUtils.copyProperties(mtimeHallFilmInfoT,mtimeHallFilmInfoT2);
         cinemaInfo.setCinemaId(cinemaInfo1.getUuid());
         cinemaInfo.setImgUrl(cinemaInfo1.getImgAddress());
-        mtimeHallDictT2.setSoldSeats("1,2,3,5,12");//假的，因为没有订单
+        EntityWrapper<MoocOrderT> orderWrapper = new EntityWrapper<>();
+        orderWrapper.eq("cinema_id",id);
+        orderWrapper.eq("field_id",fieldId);
+        orderWrapper.eq("film_id",mtimeFieldT.getFilmId());
+        List<MoocOrderT> moocOrderTS = moocOrderTMapper.selectList(orderWrapper);
+        String soldSeats = "";
+        String subSoldSeats = "";
+        if (moocOrderTS.size() > 0) {
+            for (MoocOrderT moocOrderT : moocOrderTS) {
+                soldSeats = soldSeats + moocOrderT.getSeatsIds() + ",";
+            }
+            subSoldSeats = soldSeats.substring(0, (soldSeats.length() - 2));
+        }
+        mtimeHallDictT2.setSoldSeats(subSoldSeats);
         mtimeHallDictT2.setPrice(mtimeFieldT.getPrice());
         mtimeHallDictT2.setHallName(mtimeHallDictT.getShowName());
         mtimeHallDictT2.setSeatFile(mtimeHallDictT.getSeatAddress());
