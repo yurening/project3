@@ -30,7 +30,7 @@ spring:
   application:
     name: guns-cinema
   dubbo:
-    registry: zookeeper://192.168.3.129:2181
+    registry: zookeeper://localhost:2181
     server: true
     protocol:
       name: dubbo
