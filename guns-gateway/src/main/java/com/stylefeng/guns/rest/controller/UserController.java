@@ -28,7 +28,9 @@ public class UserController {
     RedisTemplate redisTemplate;
 
     @RequestMapping("register")
-    public BaseResVO register(UserVO userVO,String password){
+    public BaseResVO register(UserVO userVO,String username,String password,String mobile){
+        userVO.setUserName(username);
+        userVO.setUserPhone(mobile);
         Integer status = userService.register(userVO,password);
         if (status == 0) {
             return BaseResVO.fail(0,"用户注册成功！");
@@ -75,16 +77,17 @@ public class UserController {
         return BaseResVO.ok(userVO);
     }
 
+
+    /**@校验用户名
+     *
+     * */
     @RequestMapping("check")
     public BaseResVO check(String username) {
         Integer status = userService.check(username);
-        switch (status) {
-            case 0:
-                return BaseResVO.fail(0, "用户不存在！");
-            case 1:
-                return BaseResVO.fail(1, "用户已经注册！");
-            default:
-                return BaseResVO.fail(999, "服务器异常！");
+        if (status == 0) {
+            return BaseResVO.fail(0,"该用户名可以注册！");
+        } else {
+            return BaseResVO.fail(1,"该用户名已经注册！");
         }
     }
 
