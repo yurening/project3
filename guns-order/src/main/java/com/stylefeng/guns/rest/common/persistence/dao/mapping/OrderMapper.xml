@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.rest.common.persistence.dao.OrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.rest.common.persistence.model.MoocOrderT">
+        <result column="UUID" property="uuid" />
+        <result column="cinema_id" property="cinemaId" />
+        <result column="field_id" property="fieldId" />
+        <result column="film_id" property="filmId" />
+        <result column="seats_ids" property="seatsIds" />
+        <result column="seats_name" property="seatsName" />
+        <result column="film_price" property="filmPrice" />
+        <result column="order_price" property="orderPrice" />
+        <result column="order_time" property="orderTime" />
+        <result column="order_user" property="orderUser" />
+        <result column="order_status" property="orderStatus" />
+    </resultMap>
+
+    <insert id="insert" parameterType="com.stylefeng.guns.rest.common.persistence.model.MoocOrderT">
+        <selectKey order="AFTER" keyColumn="UUID" keyProperty="uuid" resultType="String">
+            select LAST_INSERT_ID() as UUID
+        </selectKey>
+        insert into mooc_order_t (UUID, cinema_id, field_id,
+        film_id, seats_ids, seats_name,film_price,
+        order_price, order_time, order_user,
+        order_status
+        )
+        values (#{uuid,jdbcType=INTEGER}, #{cinemaId,jdbcType=INTEGER}, #{fieldId,jdbcType=INTEGER},
+        #{filmId,jdbcType=INTEGER}, #{seatsIds,jdbcType=VARCHAR}, #{seatsName,jdbcType=VARCHAR},
+        #{filmPrice,jdbcType=DOUBLE}, #{orderPrice,jdbcType=DOUBLE}, #{orderTime,jdbcType=TIMESTAMP},
+        #{orderUser,jdbcType=INTEGER}, #{orderStatus,jdbcType=INTEGER}
+        )
+    </insert>
+</mapper>
