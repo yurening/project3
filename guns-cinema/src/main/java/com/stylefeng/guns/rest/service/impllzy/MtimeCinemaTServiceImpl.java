@@ -45,22 +45,25 @@ public class MtimeCinemaTServiceImpl implements IMtimeCinemaTService {
      * 查找影院
      * @param brandId
      * @param hallType
-     * @param districtId
+     * @param areaId
      * @param pageSize
      * @param nowPage
      * @return
      */
     @Override
-    public CinemaBaseVO<List<CinemaInfoVO>> getCinemasItem(Integer brandId, Integer hallType, Integer districtId, Integer pageSize, Integer nowPage) {
+    public CinemaBaseVO<List<CinemaInfoVO>> getCinemasItem(Integer brandId, Integer hallType,Integer halltypeId, Integer areaId, Integer pageSize, Integer nowPage) {
         EntityWrapper<MtimeCinemaT> cinemWrapper = new EntityWrapper<>();
-        if(brandId!=null){
+        if(brandId!=null&&brandId!=99){
             cinemWrapper.eq("brand_id",brandId);
         }
-        if(hallType!=null){
-            cinemWrapper.eq("hall_ids",hallType);
+        if(hallType!=null&&hallType!=99){
+            cinemWrapper.like("hall_ids",hallType.toString());
         }
-        if(districtId!=null){
-            cinemWrapper.eq("area_id",districtId);
+        if(halltypeId!=null&&halltypeId!=99){
+            cinemWrapper.like("hall_ids",halltypeId.toString());
+        }
+        if(areaId!=null&&areaId!=99){
+            cinemWrapper.eq("area_id",areaId);
         }
         if(nowPage!=null&&pageSize!=null){
         PageHelper.startPage(nowPage,pageSize);}
@@ -71,11 +74,11 @@ public class MtimeCinemaTServiceImpl implements IMtimeCinemaTService {
 
         CinemaBaseVO<List<CinemaInfoVO>> result = new CinemaBaseVO<>();
 
-        if(pageInfo==null||pageInfo.getSize()==0){
+        /*if(pageInfo==null||pageInfo.getSize()==0){
             result.setStatus(1);
             result.setMsg("查询错误");
             return result;
-        }
+        }*/
         long pages = pageInfo.getPages();
         List<CinemaInfoVO> resultCinemas = convert2CinemaInfoVO(mtimeCinemaTS);
         result.setStatus(0);
@@ -117,28 +120,43 @@ public class MtimeCinemaTServiceImpl implements IMtimeCinemaTService {
         CinemaConditionVO condition = new CinemaConditionVO();
 
         EntityWrapper<MtimeBrandDictT> brandWrap = new EntityWrapper<>();
-        if(brandId!=null){
+        /*if(brandId!=null&&brandId!=99){
             brandWrap.eq("UUID",brandId);
-        }
+        }*/
         List<MtimeBrandDictT> brandList = brandMapper.selectList(brandWrap);
         List<BrandVO> brandResults = convert2BrandVO(brandList);
+        if(brandId!=null&&brandId!=99) {
+            for (BrandVO x : brandResults) {
+                if (x.getBrandId()==brandId){x.setActive(true);}
+            }
+        }
         condition.setBrandList(brandResults);
 
         EntityWrapper<MtimeAreaDictT> areaWrap = new EntityWrapper<>();
-        if(areaId!=null){
+        /*if(areaId!=null&&areaId!=99){
             areaWrap.eq("UUID",areaId);
-        }
+        }*/
         List<MtimeAreaDictT> areaList = areaMapper.selectList(areaWrap);
         List<AreaVO> areaResults = convert2AreaVO(areaList);
+        if(areaId!=null&&areaId!=99) {
+            for (AreaVO x : areaResults) {
+                if (x.getAreaId()==areaId){x.setActive(true);}
+            }
+        }
         condition.setAreaList(areaResults);
 
         EntityWrapper<MtimeHallDictT> hallWrap = new EntityWrapper<>();
-        if(hallType!=null){
+        /*if(hallType!=null&&hallType!=99){
             hallWrap.eq("UUID",hallType);
-        }
+        }*/
         List<MtimeHallDictT> hallList = hallMapper.selectList(hallWrap);
         List<HallTypeVO> hallResults = convert2HallVO(hallList);
-        condition.setHallTypeList(hallResults);
+        if(hallType!=null&&hallType!=99) {
+            for (HallTypeVO x : hallResults) {
+                if (x.getHalltypeId()==hallType){x.setActive(true);}
+            }
+        }
+        condition.setHalltypeList(hallResults);
 
         result.setStatus(0);
         result.setData(condition);
@@ -150,8 +168,8 @@ public class MtimeCinemaTServiceImpl implements IMtimeCinemaTService {
         ArrayList<HallTypeVO> hallVOS = new ArrayList<>();
         for(MtimeHallDictT x:hallList){
             HallTypeVO hallVO = new HallTypeVO();
-            hallVO.setHallId(x.getUuid());
-            hallVO.setHallName(x.getShowName());
+            hallVO.setHalltypeId(x.getUuid());
+            hallVO.setHalltypeName(x.getShowName());
             hallVO.setActive(false);
             hallVOS.add(hallVO);
         }
