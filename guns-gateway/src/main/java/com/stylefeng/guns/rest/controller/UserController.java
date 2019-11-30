@@ -28,7 +28,9 @@ public class UserController {
     RedisTemplate redisTemplate;
 
     @RequestMapping("register")
-    public BaseResVO register(UserVO userVO,String password){
+    public BaseResVO register(UserVO userVO,String username,String password,String mobile){
+        userVO.setUserName(username);
+        userVO.setUserPhone(mobile);
         Integer status = userService.register(userVO,password);
         if (status == 0) {
             return BaseResVO.fail(0,"用户注册成功！");
@@ -75,6 +77,10 @@ public class UserController {
         return BaseResVO.ok(userVO);
     }
 
+
+    /**@校验用户名
+     *
+     * */
     @RequestMapping("check")
     public BaseResVO check(String username) {
         Integer status = userService.check(username);

@@ -43,6 +43,10 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        if (request.getMethod().equals("OPTIONS")) {
+            chain.doFilter(request, response);
+            return;
+        }
         boolean doIntercept = false;
         for (String intercept : jwtProperties.getIntercept().split(",")) {
             if (request.getServletPath().contains(intercept)) {
@@ -65,9 +69,14 @@ public class AuthFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        response.setContentType("text/html;charset=utf-8");
-        response.getWriter().println("<script>alert(\"请先登录~\")</script>");
-        response.setHeader("refresh", "0;url=http://www.baidu.com");
+//        不起作用（貌似是因为前端的router）
+//        response.setContentType("text/html;charset=utf-8");
+//        response.getWriter().println("<script>alert(\"请先登录~\")</script>");
+//        response.setHeader("refresh", "0;url=http://www.baidu.com");
+//        重定向也一样不行
+//        response.sendRedirect("http://www.baidu.com");
+
+          request.getRequestDispatcher("/login").forward(request, response);
         }
 
 

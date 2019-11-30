@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 public class Actors implements Serializable {
     private static final long serialVersionUID = -7034559729691531528L;
-    private MtimeActorT director;
-    private List<MtimeActorT> actors;
+    private ActorsVO director;
+    private List<ActorsVO> actors;
 }

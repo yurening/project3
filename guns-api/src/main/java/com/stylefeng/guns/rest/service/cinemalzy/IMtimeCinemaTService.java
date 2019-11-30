@@ -15,7 +15,7 @@ import java.util.List;
  * @since 2019-11-28
  */
 public interface IMtimeCinemaTService {
-    CinemaBaseVO<List<CinemaInfoVO>> getCinemasItem(Integer brandId, Integer hallType, Integer districtId, Integer pageSize, Integer nowPage);
+    CinemaBaseVO<List<CinemaInfoVO>> getCinemasItem(Integer brandId, Integer hallType,Integer halltypeId, Integer areaId, Integer pageSize, Integer nowPage);
 
     CinemaBaseVO<CinemaConditionVO> getCinemaCondition(Integer brandId, Integer areaId, Integer hallType);
 }
