@@ -16,6 +16,7 @@ import java.util.List;
 @Component
 @Service(interfaceClass = UserService.class)
 public class UserServiceImpl implements UserService {
+
     @Autowired
     MtimeUserTMapper userMapper;
 
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService {
         if (users.size()>0) {return 1;}
         else {
             MtimeUserT mtimeUserT = new MtimeUserT();
-            BeanUtils.copyProperties(mtimeUserT,userVO);
+            BeanUtils.copyProperties(userVO,mtimeUserT);
             mtimeUserT.setUserPwd(password);
             userMapper.insert(mtimeUserT);
         }
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserInfo(UserVO userVO) {
         MtimeUserT user = new MtimeUserT();
-        BeanUtils.copyProperties(userVO, user);
+        BeanUtils.copyProperties(user,userVO);
         userMapper.updateById(user);
 
     }

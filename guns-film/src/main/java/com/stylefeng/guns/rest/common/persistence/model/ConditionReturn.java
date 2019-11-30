@@ -45,16 +45,16 @@ public class ConditionReturn implements Serializable {
              * catName : 爱情
              */
 
-            private boolean active;
+            private boolean isActive;
             private String catId;
             private String catName;
 
             public boolean isActive() {
-                return active;
+                return isActive;
             }
 
             public void setActive(boolean active) {
-                this.active = active;
+                this.isActive = active;
             }
 
             public String getCatId() {
@@ -82,16 +82,16 @@ public class ConditionReturn implements Serializable {
              * sourceName : 大陆
              */
 
-            private boolean active;
+            private boolean isActive;
             private String sourceId;
             private String sourceName;
 
             public boolean isActive() {
-                return active;
+                return isActive;
             }
 
             public void setActive(boolean active) {
-                this.active = active;
+                this.isActive = active;
             }
 
             public String getSourceId() {
@@ -119,16 +119,16 @@ public class ConditionReturn implements Serializable {
              * yearName : 更早
              */
 
-            private boolean active;
+            private boolean isActive;
             private String yearId;
             private String yearName;
 
             public boolean isActive() {
-                return active;
+                return isActive;
             }
 
             public void setActive(boolean active) {
-                this.active = active;
+                this.isActive = active;
             }
 
             public String getYearId() {
