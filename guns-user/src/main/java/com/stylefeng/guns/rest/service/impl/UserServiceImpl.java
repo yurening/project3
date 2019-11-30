@@ -54,8 +54,9 @@ public class UserServiceImpl implements UserService {
         EntityWrapper<MtimeUserT> wrapper = new EntityWrapper<>();
         wrapper.eq("user_name",username);
         List<MtimeUserT> users = userMapper.selectList(wrapper);
-        if (users.size()>0) {return 1;}
-        else {
+        if (users.size() > 0) {
+            return 1;
+        } else {
             return 0;
         }
 
@@ -64,8 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserInfo(UserVO userVO) {
         MtimeUserT user = new MtimeUserT();
-        BeanUtils.copyProperties(user,userVO);
+        BeanUtils.copyProperties(userVO, user);
         userMapper.updateById(user);
-
     }
 }
