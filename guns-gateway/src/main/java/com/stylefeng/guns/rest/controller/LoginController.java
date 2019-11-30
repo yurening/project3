@@ -10,9 +10,9 @@ public class LoginController {
 
     @RequestMapping("login")
     public Map login() {
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("status", 700);
-        return map1;
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", 700);
+        return map;
         }
     }
 
