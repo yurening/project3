@@ -43,8 +43,8 @@ public class CinemaController {
     IMtimeCinemaTService cinemaTService;
 
     @RequestMapping("getCinemas")
-    public CinemaBaseVO<List<CinemaInfoVO>> getCinemas(Integer brandId, Integer hallType, Integer districtId, Integer pageSize, Integer nowPage){
-        return cinemaTService.getCinemasItem(brandId,hallType,districtId,pageSize,nowPage);
+    public CinemaBaseVO<List<CinemaInfoVO>> getCinemas(Integer brandId, Integer halltypeId,Integer hallType, Integer areaId, Integer pageSize, Integer nowPage){
+        return cinemaTService.getCinemasItem(brandId,halltypeId,hallType,areaId,pageSize,nowPage);
     }
 
     @RequestMapping("getCondition")
