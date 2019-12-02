@@ -31,7 +31,7 @@ public class EntityGenerator {
         GlobalConfig gc = new GlobalConfig();
 
 
-        gc.setOutputDir("D:\\17th\\microservice\\repository2\\project3\\guns-pay\\src\\main\\java");//这里写你自己的java目录
+        gc.setOutputDir("D:\\myjava\\project3\\project3\\guns-cinema\\src\\main\\java");//这里写你自己的java目录
 
 
         gc.setFileOverride(true);//是否覆盖
