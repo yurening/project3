@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.github.pagehelper.PageHelper;
 import com.stylefeng.guns.rest.common.persistence.dao.*;
 import com.stylefeng.guns.rest.common.persistence.model.*;
 import com.stylefeng.guns.rest.vo.BaseResVO;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -50,12 +54,13 @@ public class OrderServiceImpl implements OrderService {
         BaseResVO baseResVO = new BaseResVO();
         OrderVo orderVo = new OrderVo();
         EntityWrapper<MoocOrderT> orderWrapper = new EntityWrapper<>();
+        orderWrapper.eq("field_id",fieldId);
         List<MoocOrderT> moocOrderTS = moocOrderTMapper.selectList(orderWrapper);
         String seatsIds = new String();
-        String[] split2 = seatsIds.split(",");
         for (MoocOrderT moocOrderT : moocOrderTS) {
             seatsIds = seatsIds + moocOrderT.getSeatsIds() + ",";
         }
+        String[] split2 = seatsIds.split(",");
         String[] split = soldSeats.split(",");
         EntityWrapper<MtimeFieldT> fieldWrapper = new EntityWrapper<>();
         fieldWrapper.eq("UUID",fieldId);
@@ -143,6 +148,40 @@ public class OrderServiceImpl implements OrderService {
         orderVo.setOrderTimestamp(date.toString());
         baseResVO.setStatus(0);
         baseResVO.setData(orderVo);
+        return baseResVO;
+    }
+
+    @Override
+    public BaseResVO getOrderInfo(Integer nowPage, Integer pageSize, Integer uuid) {
+        PageHelper.startPage(nowPage,pageSize);
+        List<OrderVo> orderVos = orderMapper.orderInfo(uuid);
+        BaseResVO baseResVO = new BaseResVO();
+        if (orderVos.size() == 0){
+            baseResVO.setMsg("订单列表为空");
+            baseResVO.setStatus(1);
+            return baseResVO;
+        }
+        for (OrderVo orderVo : orderVos) {
+            orderVo.setFieldTime("今日" + orderVo.getFieldTime());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date parse = null;
+            try {
+                parse = sdf.parse(orderVo.getOrderTimestamp());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            long time = parse.getTime() / 1000;
+            orderVo.setOrderTimestamp(String.valueOf(time));
+            if (orderVo.getOrderStatus().equals("1")){
+                orderVo.setOrderStatus("已完成");
+            } else if (orderVo.getOrderStatus().equals("0")){
+                orderVo.setOrderStatus("未付款");
+            } else if (orderVo.getOrderStatus().equals("2")){
+                orderVo.setOrderStatus("已取消");
+            }
+        }
+        baseResVO.setStatus(0);
+        baseResVO.setData(orderVos);
         return baseResVO;
     }
 /*

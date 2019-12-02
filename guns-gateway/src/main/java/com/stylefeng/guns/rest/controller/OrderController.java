@@ -40,4 +40,19 @@ public class OrderController {
         BaseResVO baseResVO = orderService.buyTickets(fieldId,soldSeats,seatsName,userVO.getUuid());
         return baseResVO;
     }
+
+    @RequestMapping("getOrderInfo")
+    public BaseResVO getOrderInfo(Integer nowPage,Integer pageSize, HttpServletRequest request){
+        final String requestHeader = request.getHeader(jwtProperties.getHeader());
+        String authToken = requestHeader.substring(7);
+        UserVO userVO = (UserVO) redisTemplate.opsForValue().get(authToken);
+        if (nowPage == null){
+            nowPage = 1;
+        }
+        if (pageSize == null){
+            pageSize = 5;
+        }
+        BaseResVO baseResVO = orderService.getOrderInfo(nowPage,pageSize,userVO.getUuid());
+        return baseResVO;
+    }
 }

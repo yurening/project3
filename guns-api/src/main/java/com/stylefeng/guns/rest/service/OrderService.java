@@ -6,4 +6,6 @@ import java.io.IOException;
 
 public interface OrderService {
     BaseResVO buyTickets(Integer fieldId, String soldSeats, String seatsName, Integer uuid) throws IOException;
+
+    BaseResVO getOrderInfo(Integer nowPage, Integer pageSize, Integer uuid);
 }

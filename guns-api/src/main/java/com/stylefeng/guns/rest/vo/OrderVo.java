@@ -24,5 +24,6 @@ public class OrderVo implements Serializable {
 
     String seatsName;
 
+    String orderStatus;
 
 }

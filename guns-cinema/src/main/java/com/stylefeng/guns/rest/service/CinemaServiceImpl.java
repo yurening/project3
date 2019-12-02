@@ -143,7 +143,7 @@ public class CinemaServiceImpl implements CinemaTestService {
             for (MoocOrderT moocOrderT : moocOrderTS) {
                 soldSeats = soldSeats + moocOrderT.getSeatsIds() + ",";
             }
-            subSoldSeats = soldSeats.substring(0, (soldSeats.length() - 2));
+            subSoldSeats = soldSeats.substring(0, (soldSeats.length() - 1));
         }
         mtimeHallDictT2.setSoldSeats(subSoldSeats);
         mtimeHallDictT2.setPrice(mtimeFieldT.getPrice());
