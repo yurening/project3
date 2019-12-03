@@ -17,6 +17,7 @@ import com.stylefeng.guns.rest.vo.BaseResVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -55,5 +56,34 @@ public class AlipayServiceImpl implements AlipayService {
         //取出二维码地址，并返回
 
         return baseResVO;
+    }
+
+    @Override
+    public BaseResVO getPayResult(Integer orderId, Integer tryNums) {
+        Main main = new Main();
+        int status = main.test_trade_query(orderId, tryNums);
+        MoocOrderT moocOrderT = moocOrderTMapper.selectById(orderId);
+        HashMap<Object, Object> objectObjectHashMap = new HashMap<>();
+        BaseResVO<Object> objectBaseResVO = new BaseResVO<>();
+        if(status==0) {
+            moocOrderT.setOrderStatus(1);
+            moocOrderTMapper.updateById(moocOrderT);
+            objectObjectHashMap.put("orderId", orderId);
+            objectObjectHashMap.put("orderMsg", "查询返回该订单支付成功");
+            objectObjectHashMap.put("orderStatus", 1);
+            objectBaseResVO.setData(objectObjectHashMap);
+            objectBaseResVO.setStatus(0);
+            objectBaseResVO.setMsg("支付成功");
+        }
+        else {
+            if(tryNums==3){
+                moocOrderT.setOrderStatus(2);
+                moocOrderTMapper.updateById(moocOrderT);
+            }
+            objectBaseResVO.setStatus(1);
+            objectBaseResVO.setMsg("支付失败!");
+        }
+        moocOrderTMapper.updateById(moocOrderT);
+        return objectBaseResVO;
     }
 }

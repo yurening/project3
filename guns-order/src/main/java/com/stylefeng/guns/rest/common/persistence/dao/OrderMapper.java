@@ -16,7 +16,7 @@ public interface OrderMapper {
             ",c.cinema_name as cinemaName,o.seats_name as seatsName,o.order_time as orderTimestamp," +
             "o.order_price as orderPrice,o.order_status as orderStatus" +
             " from mooc_order_t o left join mtime_field_t f1 on o.field_id = f1.uuid" +
-            " left join mtime_hall_film_info_t f2 on o.film_id = f2.UUID" +
+            " left join mtime_hall_film_info_t f2 on o.film_id = f2.film_id" +
             " left join mtime_cinema_t c on c.UUID = o.cinema_id " +
             "where o.order_user = #{orderUser}"
     })

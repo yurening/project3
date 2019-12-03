@@ -290,19 +290,19 @@ public class Main {
     }
 
     // 测试当面付2.0查询订单
-    public void test_trade_query() {
+    public int test_trade_query(Integer orderId, Integer tryNums) {
         // (必填) 商户订单号，通过此商户订单号查询当面付的交易状态
-        String outTradeNo = "tradepay14817938139942440181";
+        String outTradeNo = orderId.toString();
 
         // 创建查询请求builder，设置请求参数
         AlipayTradeQueryRequestBuilder builder = new AlipayTradeQueryRequestBuilder()
             .setOutTradeNo(outTradeNo);
 
         AlipayF2FQueryResult result = tradeService.queryTradeResult(builder);
+        int status = -1;
         switch (result.getTradeStatus()) {
             case SUCCESS:
                 log.info("查询返回该订单支付成功: )");
-
                 AlipayTradeQueryResponse response = result.getResponse();
                 dumpResponse(response);
 
@@ -312,6 +312,7 @@ public class Main {
                         log.info(bill.getFundChannel() + ":" + bill.getAmount());
                     }
                 }
+                status = 0;
                 break;
 
             case FAILED:
@@ -326,7 +327,9 @@ public class Main {
                 log.error("不支持的交易状态，交易返回异常!!!");
                 break;
         }
+        return status;
     }
+
 
     // 测试当面付2.0退款
     public void test_trade_refund() {
@@ -378,7 +381,7 @@ public class Main {
         /*String outTradeNo = "tradeprecreate" + System.currentTimeMillis()
                             + (long) (Math.random() * 10000000L);*/
 
-        String outTradeNo = "tradeprecreate" + moocOrderT.getUuid();
+        String outTradeNo =moocOrderT.getUuid().toString();
         // (必填) 订单标题，粗略描述用户的支付目的。如“xxx品牌xxx门店当面付扫码消费”
         String subject = brand + "品牌" + cinema + "门店当面付扫码消费";
 
