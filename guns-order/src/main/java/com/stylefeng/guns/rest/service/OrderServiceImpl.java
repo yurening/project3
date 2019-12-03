@@ -53,31 +53,40 @@ public class OrderServiceImpl implements OrderService {
     public BaseResVO buyTickets(Integer fieldId, String soldSeats, String seatsName, Integer uuid) throws IOException {
         BaseResVO baseResVO = new BaseResVO();
         OrderVo orderVo = new OrderVo();
+        //筛选出跟该影厅有关的订单
         EntityWrapper<MoocOrderT> orderWrapper = new EntityWrapper<>();
         orderWrapper.eq("field_id",fieldId);
         List<MoocOrderT> moocOrderTS = moocOrderTMapper.selectList(orderWrapper);
+        //获取已被买的座位号
         String seatsIds = new String();
         for (MoocOrderT moocOrderT : moocOrderTS) {
             seatsIds = seatsIds + moocOrderT.getSeatsIds() + ",";
         }
+        //将已被买的座位号分成单个座位号数组
         String[] split2 = seatsIds.split(",");
+        //将即将购买的座位号分成单个的座位号数组
         String[] split = soldSeats.split(",");
+        //获取该影厅信息
         EntityWrapper<MtimeFieldT> fieldWrapper = new EntityWrapper<>();
         fieldWrapper.eq("UUID",fieldId);
         List<MtimeFieldT> mtimeFieldTS = mtimeFieldTMapper.selectList(fieldWrapper);
         MtimeFieldT mtimeFieldT = mtimeFieldTS.get(0);
         boolean isNotExist = true;
         Integer hallId = mtimeFieldT.getHallId();
+        //获取具体影厅形式信息
         EntityWrapper<MtimeHallDictT> hallWrapper = new EntityWrapper<>();
         hallWrapper.eq("UUID",hallId);
         List<MtimeHallDictT> mtimeHallDictTS = mtimeHallDictTMapper.selectList(hallWrapper);
+        //根据影厅形式获取座位的json文件
         String seatAddress = mtimeHallDictTS.get(0).getSeatAddress();
         //File file = areaRes.getFile();
         File file = new File(this.getClass().getResource("/static/" + seatAddress).getPath());
         FileInputStream fileInputStream = new FileInputStream(file);
         //String s1 = IOUtils.toString(areaRes.getInputStream(), Charset.forName("UTF-8"));
         String s1 = IOUtils.toString(fileInputStream, Charset.forName("UTF-8"));
+        //根据获取到的json文件获取到具体的作为id
         String ids = (String) JSONPath.read(s1, "$ids");
+        //并将该影厅形式的具体座位分成单个的座位数组
         String[] split1 = ids.split(",");
         //File file = new File("static\\" + seatAddress);
         /*FileReader reader = new FileReader(file);*/
@@ -91,6 +100,7 @@ public class OrderServiceImpl implements OrderService {
         String s1 = stringBuilder.toString();
         Seats seats = parserSeats(s1);*/
         //String ids = seats.getIds();
+        //检测即将购买的座位号是否真是存在
         for (String s : split) {
             for (String s2 : split1) {
                 if (s2.equals(s)){
@@ -105,6 +115,7 @@ public class OrderServiceImpl implements OrderService {
             return baseResVO;
         }
         boolean isSold = false;
+        //检测即将购买的座位号是否已售出
         for (String s : split) {
             for (String s2 : split2) {
                 if (s2.equals(s)){
@@ -118,18 +129,22 @@ public class OrderServiceImpl implements OrderService {
             baseResVO.setStatus(1);
             return baseResVO;
         }
+
         EntityWrapper<MtimeCinemaT> cinemaWrapper = new EntityWrapper<>();
         EntityWrapper<MtimeHallFilmInfoT> filmWrapper = new EntityWrapper<>();
+        //查询出具体的影院信息
         cinemaWrapper.eq("UUID",mtimeFieldT.getCinemaId());
         List<MtimeCinemaT> mtimeCinemaTS = mtimeCinemaTMapper.selectList(cinemaWrapper);
         MtimeCinemaT mtimeCinemaT = mtimeCinemaTS.get(0);
         filmWrapper.eq("film_id",mtimeFieldT.getFilmId());
+        //查询出具体的电影信息
         List<MtimeHallFilmInfoT> mtimeHallFilmInfoTS = mtimeHallFilmInfoTMapper.selectList(filmWrapper);
         MtimeHallFilmInfoT mtimeHallFilmInfoT = mtimeHallFilmInfoTS.get(0);
+        //将获取到的信息进行封装
         MoocOrderT moocOrderT = new MoocOrderT();
         moocOrderT.setFieldId(fieldId);
         moocOrderT.setCinemaId(mtimeCinemaT.getUuid());
-        moocOrderT.setFilmId(mtimeHallFilmInfoT.getUuid());
+        moocOrderT.setFilmId(mtimeHallFilmInfoT.getFilmId());
         moocOrderT.setSeatsIds(soldSeats);
         moocOrderT.setSeatsName(seatsName);
         moocOrderT.setFilmPrice(Double.valueOf(mtimeFieldT.getPrice()));
@@ -137,7 +152,9 @@ public class OrderServiceImpl implements OrderService {
         moocOrderT.setOrderTime(new Date());
         moocOrderT.setOrderStatus(0);
         moocOrderT.setOrderUser(uuid);
+        //将封装好的对象插入数据库
         orderMapper.insert(moocOrderT);
+        //将需要返回给前端的数据封装
         orderVo.setOrderId(moocOrderT.getUuid());
         orderVo.setCinemaName(mtimeCinemaT.getCinemaName());
         orderVo.setFieldTime("今日" + mtimeFieldT.getBeginTime());
