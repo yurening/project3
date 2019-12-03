@@ -2,6 +2,8 @@ package com.stylefeng.guns.rest.service.impllzy;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.stylefeng.guns.rest.common.persistence.dao.MtimeAreaDictTMapper;
@@ -12,6 +14,7 @@ import com.stylefeng.guns.rest.common.persistence.model.MtimeAreaDictT;
 import com.stylefeng.guns.rest.common.persistence.model.MtimeBrandDictT;
 import com.stylefeng.guns.rest.common.persistence.model.MtimeCinemaT;
 import com.stylefeng.guns.rest.common.persistence.model.MtimeHallDictT;
+import com.stylefeng.guns.rest.dto.CinemaDTO;
 import com.stylefeng.guns.rest.service.cinemalzy.IMtimeCinemaTService;
 import com.stylefeng.guns.rest.vo.cinemavolzy.*;
 import org.springframework.beans.BeanUtils;
@@ -161,6 +164,40 @@ public class MtimeCinemaTServiceImpl implements IMtimeCinemaTService {
         result.setStatus(0);
         result.setData(condition);
         return result;
+    }
+
+    /**
+     * yzn:获取秒杀信息
+     * @param brandId
+     * @param areaId
+     * @param hallType
+     * @return
+     */
+    @Override
+    public List<CinemaDTO> getCinemaForPromo(Integer brandId, Integer areaId,String hallType,Integer pageSize, Integer nowPage) {
+        EntityWrapper<MtimeCinemaT> cinemaTEntityWrapper = new EntityWrapper<>();
+        Page page = new Page(nowPage,pageSize);
+        if (brandId!=99){
+            cinemaTEntityWrapper.eq("brand_id", brandId);
+        }
+        if (areaId!=99){
+            cinemaTEntityWrapper.eq("area_id",areaId);
+        }
+        if (!"99".equals(hallType)){
+            cinemaTEntityWrapper.like("hall_ids",hallType);
+        }
+        List<CinemaDTO> list = new ArrayList<>();
+        List<MtimeCinemaT> mtimeCinemaTS = cinemaTMapper.selectPage(page,cinemaTEntityWrapper);
+        for (MtimeCinemaT cinemaT : mtimeCinemaTS) {
+            CinemaDTO cinemaDTO = new CinemaDTO();
+            cinemaDTO.setCinemaAddress(cinemaT.getCinemaAddress());
+            cinemaDTO.setCinemaId(cinemaT.getUuid());
+            cinemaDTO.setCinemaName(cinemaT.getCinemaName());
+            cinemaDTO.setImgAddress(cinemaT.getImgAddress());
+            list.add(cinemaDTO);
+        }
+
+        return list;
     }
 
     private List<HallTypeVO> convert2HallVO(List<MtimeHallDictT> hallList) {
