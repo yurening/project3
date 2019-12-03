@@ -123,7 +123,7 @@ public class OrderServiceImpl implements OrderService {
         cinemaWrapper.eq("UUID",mtimeFieldT.getCinemaId());
         List<MtimeCinemaT> mtimeCinemaTS = mtimeCinemaTMapper.selectList(cinemaWrapper);
         MtimeCinemaT mtimeCinemaT = mtimeCinemaTS.get(0);
-        filmWrapper.eq("UUID",mtimeFieldT.getFilmId());
+        filmWrapper.eq("film_id",mtimeFieldT.getFilmId());
         List<MtimeHallFilmInfoT> mtimeHallFilmInfoTS = mtimeHallFilmInfoTMapper.selectList(filmWrapper);
         MtimeHallFilmInfoT mtimeHallFilmInfoT = mtimeHallFilmInfoTS.get(0);
         MoocOrderT moocOrderT = new MoocOrderT();
