@@ -12,7 +12,7 @@ public class BaseResVO<T> implements Serializable {
     T data;
     String msg;
     Integer status;
-    String imgPre;
+    String imgPre /*= "http://localhost:80/"*/;
     Integer nowPage;
     Integer totalPage;
 

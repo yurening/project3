@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 @ResponseBody
 @RequestMapping("promo")
 public class PromoController {
-    @Reference(interfaceClass = PromoService.class)
+    @Reference(interfaceClass = PromoService.class,check = false)
     PromoService promoService;
 
     @Autowired

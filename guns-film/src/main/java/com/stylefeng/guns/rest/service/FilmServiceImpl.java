@@ -367,7 +367,7 @@ public class FilmServiceImpl implements FilmService {
 
         BaseResVO baseResVO = new BaseResVO();
         baseResVO.setData(searchFilmVO);
-        baseResVO.setImgPre("http://img.meetingshop.cn/");
+        /*baseResVO.setImgPre("http://img.meetingshop.cn/");*/
         baseResVO.setStatus(0);
         return baseResVO;
     }
