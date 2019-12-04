@@ -49,4 +49,13 @@ public class PromoController {
 
         return promo;
     }
+
+    @RequestMapping("publishPromoStock")
+    public BaseResVO publishPromoStock() {
+        promoService.publishPromoStock();
+        BaseResVO baseResVO = new BaseResVO();
+        baseResVO.setStatus(0);
+        baseResVO.setMsg("发布成功！");
+        return baseResVO;
+    }
 }

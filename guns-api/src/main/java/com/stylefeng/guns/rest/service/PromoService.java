@@ -10,4 +10,5 @@ public interface PromoService {
 
     //添加秒杀订单
     BaseResVO createPromo(Integer promoId ,Integer amount,Integer userId);
+    void publishPromoStock();
 }

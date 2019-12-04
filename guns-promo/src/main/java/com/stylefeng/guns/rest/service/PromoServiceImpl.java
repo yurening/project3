@@ -15,6 +15,7 @@ import com.stylefeng.guns.rest.service.cinemalzy.IMtimeCinemaTService;
 import com.stylefeng.guns.rest.vo.BaseResVO;
 import com.stylefeng.guns.rest.vo.PromoForCinemaVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ public class PromoServiceImpl implements PromoService {
 
     @Autowired
     MtimePromoOrderMapper mtimePromoOrderMapper;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     /**
      * 获取活动信息
@@ -111,5 +115,15 @@ public class PromoServiceImpl implements PromoService {
         baseResVO.setMsg("下单成功");
 
         return baseResVO;
+    }
+
+    @Override
+    public void publishPromoStock() {
+        List<MtimePromoStock> promoStocks = mtimePromoStockMapper.selectList(new EntityWrapper<>());
+        for (MtimePromoStock stock : promoStocks) {
+            if (!redisTemplate.opsForHash().hasKey("promo", stock.getPromoId()+"")) {
+                redisTemplate.opsForHash().put("promo", stock.getPromoId()+"", stock.getStock()+"");
+            }
+        }
     }
 }
