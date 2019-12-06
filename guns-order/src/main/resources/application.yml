@@ -46,3 +46,10 @@ logging:
   level.com.stylefeng: debug
   path: logs/
   file: guns-rest.log
+
+mq:
+  nameserver:
+    address: 127.0.0.1:9876
+  topic: order
+  producergroup: orderproducer_group
+  comsumergroup: ordercomsumer_group

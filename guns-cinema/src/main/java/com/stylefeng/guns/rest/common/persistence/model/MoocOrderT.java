@@ -25,7 +25,7 @@ public class MoocOrderT extends Model<MoocOrderT> {
      * 主键编号
      */
     @TableId(value = "UUID", type = IdType.AUTO)
-    private Integer uuid;
+    private String uuid;
     /**
      * 影院编号
      */
@@ -78,11 +78,11 @@ public class MoocOrderT extends Model<MoocOrderT> {
     private Integer orderStatus;
 
 
-    public Integer getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(Integer uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 

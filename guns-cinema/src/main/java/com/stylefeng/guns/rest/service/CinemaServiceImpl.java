@@ -136,7 +136,13 @@ public class CinemaServiceImpl implements CinemaTestService {
         orderWrapper.eq("cinema_id",id);
         orderWrapper.eq("field_id",fieldId);
         orderWrapper.eq("film_id",mtimeFieldT.getFilmId());
-        List<MoocOrderT> moocOrderTS = moocOrderTMapper.selectList(orderWrapper);
+        List<MoocOrderT> moocOrderTS1 = moocOrderTMapper.selectList(orderWrapper);
+        List<MoocOrderT> moocOrderTS = new ArrayList<>();
+        for (MoocOrderT moocOrderT : moocOrderTS1) {
+            if (!moocOrderT.getOrderStatus().equals(2)){
+                moocOrderTS.add(moocOrderT);
+            }
+        }
         String soldSeats = "";
         String subSoldSeats = "";
         if (moocOrderTS.size() > 0) {
