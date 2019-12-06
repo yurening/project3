@@ -17,11 +17,13 @@ import com.stylefeng.guns.rest.common.persistence.model.MtimePromo;
 import com.stylefeng.guns.rest.common.persistence.model.MtimePromoOrder;
 import com.stylefeng.guns.rest.common.persistence.model.MtimePromoStock;
 import com.stylefeng.guns.rest.common.persistence.model.MtimeStockLog;
+import com.stylefeng.guns.rest.consistant.RedisPrefixConsistant;
 import com.stylefeng.guns.rest.dto.CinemaDTO;
 import com.stylefeng.guns.rest.mq.MqProducer;
 import com.stylefeng.guns.rest.service.cinemalzy.IMtimeCinemaTService;
 import com.stylefeng.guns.rest.vo.BaseResVO;
 import com.stylefeng.guns.rest.vo.PromoForCinemaVO;
+import com.stylefeng.guns.rest.vo.PromoVO;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Service(interfaceClass = PromoService.class)
@@ -63,6 +66,8 @@ public class PromoServiceImpl implements PromoService {
     MqProducer mqProducer;
 
     private ExecutorService executorService;
+
+    public static final Integer PROMO_TOKEN_AMOUNT_TIMES = 5;
 
     @PostConstruct
     public void init() {
@@ -130,11 +135,16 @@ public class PromoServiceImpl implements PromoService {
     public void publishPromoStock() {
         List<MtimePromoStock> promoStocks = mtimePromoStockMapper.selectList(new EntityWrapper<>());
         for (MtimePromoStock stock : promoStocks) {
-//            if (!redisTemplate.opsForHash().hasKey("promo", stock.getPromoId()+"")) {
-//                redisTemplate.opsForHash().put("promo", stock.getPromoId()+"", stock.getStock()+"");
-//            }
-            if(!redisTemplate.hasKey(PROMO_STOCK_PREFIX+stock.getPromoId())) {
+
+            String stockKey = PROMO_STOCK_PREFIX+stock.getPromoId();
+            if(!redisTemplate.hasKey(stockKey)) {
                 redisTemplate.opsForValue().set(PROMO_STOCK_PREFIX+stock.getPromoId(), stock.getStock());
+            }
+
+            String tokenAmountKey = RedisPrefixConsistant.PROMO_TOKEN_AMOUNT_LIMIT_PROMOID + stock.getPromoId();
+            if (!redisTemplate.hasKey(tokenAmountKey)) {
+                Integer tokenAmount = stock.getStock() * PROMO_TOKEN_AMOUNT_TIMES;
+                redisTemplate.opsForValue().set(tokenAmountKey, tokenAmount);
             }
         }
     }
@@ -170,6 +180,11 @@ public class PromoServiceImpl implements PromoService {
             executorService.submit(() -> mtimeStockLogMapper.updateStatusById(stockLogId, StockLogStatus.FAIL.getCode()));
             throw new GunsException(GunsExceptionEnum.DATABASE_ERROR);
         }
+        if (promo == 0) {
+            String key = RedisPrefixConsistant.PROMO_SOLDOUT_PROMOID + promoId;
+            redisTemplate.opsForValue().set(key, "soldout");
+            redisTemplate.expire(key, 2, TimeUnit.HOURS);
+        }
 
         //根据活动id查活动表格
         MtimePromo mtimePromo = mtimePromoMapper.selectById(promoId);
@@ -200,4 +215,27 @@ public class PromoServiceImpl implements PromoService {
     public Integer getStatusByStockLogId(String stockLogId) {
         return mtimeStockLogMapper.selectStatusById(stockLogId);
     }
+
+    @Override
+    public PromoVO getPromoById(Integer promoId) {
+        MtimePromo mtimePromo = mtimePromoMapper.selectById(promoId);
+        if (mtimePromo == null) return null;
+        PromoVO promoVO = new PromoVO();
+        promoVO.setStatus(mtimePromo.getStatus());
+        return promoVO;
+    }
+
+    @Override
+    public String generateToken(Integer promoId, Integer userId) {
+        String tokenAmountKey = RedisPrefixConsistant.PROMO_TOKEN_AMOUNT_LIMIT_PROMOID + promoId;
+        Long tokenAmount = redisTemplate.opsForValue().increment(tokenAmountKey, -1);
+        if (tokenAmount < 0) {
+            return null;
+        }
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "").substring(18);
+        String tokenKey = String.format(RedisPrefixConsistant.PROMO_USER_TOKEN_PROMOID, promoId, userId);
+        redisTemplate.opsForValue().set(tokenKey, uuid);
+        return uuid;
+    }
+
 }

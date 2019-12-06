@@ -1,6 +1,7 @@
 package com.stylefeng.guns.rest.service;
 
 import com.stylefeng.guns.rest.vo.BaseResVO;
+import com.stylefeng.guns.rest.vo.PromoVO;
 
 import java.util.HashMap;
 
@@ -19,4 +20,8 @@ public interface PromoService {
     void createPromoOrder(HashMap hashMap) throws Exception;
 
     Integer getStatusByStockLogId(String stockLogId);
+
+    PromoVO getPromoById(Integer promoId);
+
+    String generateToken(Integer promoId, Integer userId);
 }
