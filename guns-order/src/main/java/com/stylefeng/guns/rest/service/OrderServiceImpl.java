@@ -7,8 +7,10 @@ import com.alibaba.fastjson.JSONPath;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.github.pagehelper.PageHelper;
+import com.stylefeng.guns.core.util.IdGenerator;
 import com.stylefeng.guns.rest.common.persistence.dao.*;
 import com.stylefeng.guns.rest.common.persistence.model.*;
+import com.stylefeng.guns.rest.mq.MqProducer;
 import com.stylefeng.guns.rest.vo.BaseResVO;
 import com.stylefeng.guns.rest.vo.OrderVo;
 import org.apache.commons.io.IOUtils;
@@ -21,6 +23,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +49,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderMapper orderMapper;
 
+    @Autowired
+    MqProducer mqProducer;
+
 /*    @Value("classpath:static/seats/123214.json")
     private Resource areaRes;*/
 
@@ -56,7 +62,13 @@ public class OrderServiceImpl implements OrderService {
         //筛选出跟该影厅有关的订单
         EntityWrapper<MoocOrderT> orderWrapper = new EntityWrapper<>();
         orderWrapper.eq("field_id",fieldId);
-        List<MoocOrderT> moocOrderTS = moocOrderTMapper.selectList(orderWrapper);
+        List<MoocOrderT> moocOrderTS1 = moocOrderTMapper.selectList(orderWrapper);
+        List<MoocOrderT> moocOrderTS = new ArrayList<>();
+        for (MoocOrderT moocOrderT : moocOrderTS1) {
+            if (!moocOrderT.getOrderStatus().equals(2)){
+                moocOrderTS.add(moocOrderT);
+            }
+        }
         //获取已被买的座位号
         String seatsIds = new String();
         for (MoocOrderT moocOrderT : moocOrderTS) {
@@ -152,6 +164,7 @@ public class OrderServiceImpl implements OrderService {
         moocOrderT.setOrderTime(new Date());
         moocOrderT.setOrderStatus(0);
         moocOrderT.setOrderUser(uuid);
+        moocOrderT.setUuid(IdGenerator.getId());
         //将封装好的对象插入数据库
         orderMapper.insert(moocOrderT);
         //将需要返回给前端的数据封装
@@ -165,6 +178,7 @@ public class OrderServiceImpl implements OrderService {
         orderVo.setOrderTimestamp(date.toString());
         baseResVO.setStatus(0);
         baseResVO.setData(orderVo);
+        mqProducer.cancelOrder(moocOrderT);
         return baseResVO;
     }
 
