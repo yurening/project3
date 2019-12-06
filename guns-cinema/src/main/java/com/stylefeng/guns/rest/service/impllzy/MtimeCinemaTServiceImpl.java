@@ -176,27 +176,43 @@ public class MtimeCinemaTServiceImpl implements IMtimeCinemaTService {
     @Override
     public List<CinemaDTO> getCinemaForPromo(Integer brandId, Integer areaId,String hallType,Integer pageSize, Integer nowPage) {
         EntityWrapper<MtimeCinemaT> cinemaTEntityWrapper = new EntityWrapper<>();
-        Page page = new Page(nowPage,pageSize);
-        if (brandId!=99){
+        Page page = null;
+        if (nowPage != null && pageSize != null) {
+            page = new Page(nowPage, pageSize);
+        }
+        if (brandId != null && brandId != 99) {
             cinemaTEntityWrapper.eq("brand_id", brandId);
         }
-        if (areaId!=99){
-            cinemaTEntityWrapper.eq("area_id",areaId);
+        if (areaId != null && areaId != 99) {
+            cinemaTEntityWrapper.eq("area_id", areaId);
         }
-        if (!"99".equals(hallType)){
-            cinemaTEntityWrapper.like("hall_ids",hallType);
+        if (hallType != null && !"99".equals(hallType)) {
+            cinemaTEntityWrapper.like("hall_ids", hallType);
         }
         List<CinemaDTO> list = new ArrayList<>();
-        List<MtimeCinemaT> mtimeCinemaTS = cinemaTMapper.selectPage(page,cinemaTEntityWrapper);
-        for (MtimeCinemaT cinemaT : mtimeCinemaTS) {
-            CinemaDTO cinemaDTO = new CinemaDTO();
-            cinemaDTO.setCinemaAddress(cinemaT.getCinemaAddress());
-            cinemaDTO.setCinemaId(cinemaT.getUuid());
-            cinemaDTO.setCinemaName(cinemaT.getCinemaName());
-            cinemaDTO.setImgAddress(cinemaT.getImgAddress());
-            list.add(cinemaDTO);
-        }
+        if (page != null) {
+            List<MtimeCinemaT> mtimeCinemaTS = cinemaTMapper.selectPage(page, cinemaTEntityWrapper);
 
+            for (MtimeCinemaT cinemaT : mtimeCinemaTS) {
+                CinemaDTO cinemaDTO = new CinemaDTO();
+                cinemaDTO.setCinemaAddress(cinemaT.getCinemaAddress());
+                cinemaDTO.setCinemaId(cinemaT.getUuid());
+                cinemaDTO.setCinemaName(cinemaT.getCinemaName());
+                cinemaDTO.setImgAddress(cinemaT.getImgAddress());
+                list.add(cinemaDTO);
+            }
+        } else {
+            List<MtimeCinemaT> mtimeCinemaTS = cinemaTMapper.selectList(cinemaTEntityWrapper);
+
+            for (MtimeCinemaT cinemaT : mtimeCinemaTS) {
+                CinemaDTO cinemaDTO = new CinemaDTO();
+                cinemaDTO.setCinemaAddress(cinemaT.getCinemaAddress());
+                cinemaDTO.setCinemaId(cinemaT.getUuid());
+                cinemaDTO.setCinemaName(cinemaT.getCinemaName());
+                cinemaDTO.setImgAddress(cinemaT.getImgAddress());
+                list.add(cinemaDTO);
+            }
+        }
         return list;
     }
 

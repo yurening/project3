@@ -30,7 +30,7 @@ spring:
   application:
     name: guns-promo
   dubbo:
-    registry: zookeeper://localhost:2181
+    registry: zookeeper://192.168.4.62:2181
     server: true
     protocol:
       name: dubbo
@@ -40,6 +40,13 @@ spring:
       username: root
       password: 123456
       filters: log4j,wall,mergeStat
+
+mq:
+  nameserver:
+    address: 127.0.0.1:9876
+  topic: stock
+  transactionproducergroup: transaction_group
+  comsumergroup: comsumer_group
 
 logging:
   level.root: info

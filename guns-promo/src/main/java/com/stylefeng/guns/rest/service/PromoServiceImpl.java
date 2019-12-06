@@ -4,29 +4,44 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
+import com.stylefeng.guns.core.exception.GunsException;
+import com.stylefeng.guns.core.exception.GunsExceptionEnum;
+import com.stylefeng.guns.core.exception.ServiceExceptionEnum;
+import com.stylefeng.guns.core.util.DateUtil;
+import com.stylefeng.guns.rest.common.persistence.StockLogStatus;
 import com.stylefeng.guns.rest.common.persistence.dao.MtimePromoMapper;
 import com.stylefeng.guns.rest.common.persistence.dao.MtimePromoOrderMapper;
 import com.stylefeng.guns.rest.common.persistence.dao.MtimePromoStockMapper;
+import com.stylefeng.guns.rest.common.persistence.dao.MtimeStockLogMapper;
 import com.stylefeng.guns.rest.common.persistence.model.MtimePromo;
 import com.stylefeng.guns.rest.common.persistence.model.MtimePromoOrder;
 import com.stylefeng.guns.rest.common.persistence.model.MtimePromoStock;
+import com.stylefeng.guns.rest.common.persistence.model.MtimeStockLog;
 import com.stylefeng.guns.rest.dto.CinemaDTO;
+import com.stylefeng.guns.rest.mq.MqProducer;
 import com.stylefeng.guns.rest.service.cinemalzy.IMtimeCinemaTService;
 import com.stylefeng.guns.rest.vo.BaseResVO;
 import com.stylefeng.guns.rest.vo.PromoForCinemaVO;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 @Service(interfaceClass = PromoService.class)
 public class PromoServiceImpl implements PromoService {
-    @Reference(interfaceClass = IMtimeCinemaTService.class)
+    private static final String PROMO_STOCK_PREFIX = "promo_stock_prefix_";
+
+    @Reference(interfaceClass = IMtimeCinemaTService.class, check = false)
     IMtimeCinemaTService iMtimeCinemaTService;
 
     @Autowired
@@ -39,7 +54,20 @@ public class PromoServiceImpl implements PromoService {
     MtimePromoOrderMapper mtimePromoOrderMapper;
 
     @Autowired
+    MtimeStockLogMapper mtimeStockLogMapper;
+
+    @Autowired
     RedisTemplate redisTemplate;
+
+    @Autowired
+    MqProducer mqProducer;
+
+    private ExecutorService executorService;
+
+    @PostConstruct
+    public void init() {
+        executorService = Executors.newFixedThreadPool(100);
+    }
 
     /**
      * 获取活动信息
@@ -61,7 +89,6 @@ public class PromoServiceImpl implements PromoService {
             EntityWrapper<MtimePromo> mtimePromoEntityWrapper = new EntityWrapper<>();
             mtimePromoEntityWrapper.eq("cinema_id",cinemaId);
             List<MtimePromo> mtimePromos = mtimePromoMapper.selectList(mtimePromoEntityWrapper);
-            //MtimePromo mtimePromo = mtimePromos.get(0);
             for (MtimePromo mtimePromo : mtimePromos) {
                 PromoForCinemaVO promo = new PromoForCinemaVO();
                 promo.setCinemaAddress(cinemaDTO.getCinemaAddress());
@@ -76,11 +103,13 @@ public class PromoServiceImpl implements PromoService {
                 promo.setUuid(mtimePromo.getUuid());
 
                 //库存
-                EntityWrapper<MtimePromoStock> stockEntityWrapper = new EntityWrapper<>();
+                /*EntityWrapper<MtimePromoStock> stockEntityWrapper = new EntityWrapper<>();
                 stockEntityWrapper.eq("promo_id",mtimePromo.getUuid());
                 List<MtimePromoStock> mtimePromoStocks = mtimePromoStockMapper.selectList(stockEntityWrapper);
                 MtimePromoStock mtimePromoStock = mtimePromoStocks.get(0);
-                promo.setStock(mtimePromoStock.getStock());
+                promo.setStock(mtimePromoStock.getStock());*/
+                Integer stock= (Integer) redisTemplate.opsForValue().get(PROMO_STOCK_PREFIX + mtimePromo.getUuid()/*String.valueOf(mtimePromo.getUuid())*/);
+                promo.setStock(stock);
 
                 dataList.add(promo);
             }
@@ -93,37 +122,82 @@ public class PromoServiceImpl implements PromoService {
     }
 
     @Override
-    public BaseResVO createPromo(Integer promoId, Integer amount, Integer userId) {
-        //根据活动id查活动表格
-        MtimePromo mtimePromo = mtimePromoMapper.selectById(promoId);
-
-        //生成兑换码部分
-        String replace = UUID.randomUUID().toString().replace("-", "");
-
-        MtimePromoOrder promoOrder = new MtimePromoOrder();
-        promoOrder.setUserId(userId);
-        promoOrder.setCinemaId(mtimePromo.getCinemaId());
-        promoOrder.setAmount(amount);
-        promoOrder.setPrice(mtimePromo.getPrice());
-        promoOrder.setStartTime(mtimePromo.getStartTime());
-        promoOrder.setCreateTime(new Date());
-        promoOrder.setEndTime(mtimePromo.getEndTime());
-        promoOrder.setExchangeCode(replace);
-
-        BaseResVO baseResVO = new BaseResVO();
-        baseResVO.setStatus(0);
-        baseResVO.setMsg("下单成功");
-
-        return baseResVO;
+    public Boolean createPromo(Integer promoId, Integer amount, Integer userId, String stockLogId) {
+        return mqProducer.sendStockMessageInTransaction(promoId, amount, userId, stockLogId);
     }
 
     @Override
     public void publishPromoStock() {
         List<MtimePromoStock> promoStocks = mtimePromoStockMapper.selectList(new EntityWrapper<>());
         for (MtimePromoStock stock : promoStocks) {
-            if (!redisTemplate.opsForHash().hasKey("promo", stock.getPromoId()+"")) {
-                redisTemplate.opsForHash().put("promo", stock.getPromoId()+"", stock.getStock()+"");
+//            if (!redisTemplate.opsForHash().hasKey("promo", stock.getPromoId()+"")) {
+//                redisTemplate.opsForHash().put("promo", stock.getPromoId()+"", stock.getStock()+"");
+//            }
+            if(!redisTemplate.hasKey(PROMO_STOCK_PREFIX+stock.getPromoId())) {
+                redisTemplate.opsForValue().set(PROMO_STOCK_PREFIX+stock.getPromoId(), stock.getStock());
             }
         }
+    }
+
+    @Override
+    public String initPromoStockLog(Integer promoId, Integer amount) {
+        MtimeStockLog mtimeStockLog = new MtimeStockLog();
+        String stockLogId = UUID.randomUUID().toString().replaceAll("-", "").substring(16);
+        mtimeStockLog.setUuid(stockLogId);
+        mtimeStockLog.setStatus(StockLogStatus.INIT.getCode());
+        mtimeStockLog.setPromoId(promoId);
+        mtimeStockLog.setAmount(amount);
+        Integer insert = mtimeStockLogMapper.insert(mtimeStockLog);
+        if (insert <= 0) {
+            return null;
+        }
+        return stockLogId;
+    }
+
+    @Transactional
+    @Override
+    public void createPromoOrder(HashMap hashMap) throws Exception {
+        Integer promoId = (Integer) hashMap.get("promoId");
+        Integer amount = (Integer) hashMap.get("amount");
+        Integer userId = (Integer) hashMap.get("userId");
+        String stockLogId = (String) hashMap.get("stockLogId");
+        Integer decreaseAmount = amount * -1;
+//        Long promo = redisTemplate.opsForHash().increment("promo", promoId+"", decreaseAmount);
+        Long promo = redisTemplate.opsForValue().increment(PROMO_STOCK_PREFIX + promoId, decreaseAmount);
+        if (promo < 0) {
+//            redisTemplate.opsForHash().increment("promo", promoId+"", amount);
+            redisTemplate.opsForValue().increment(PROMO_STOCK_PREFIX + promoId, amount);
+            executorService.submit(() -> mtimeStockLogMapper.updateStatusById(stockLogId, StockLogStatus.FAIL.getCode()));
+            throw new GunsException(GunsExceptionEnum.DATABASE_ERROR);
+        }
+
+        //根据活动id查活动表格
+        MtimePromo mtimePromo = mtimePromoMapper.selectById(promoId);
+
+        //生成兑换码
+        String exchangeCode = UUID.randomUUID().toString().replace("-", "");
+
+
+
+        MtimePromoOrder promoOrder = new MtimePromoOrder();
+        promoOrder.setUserId(userId);
+        promoOrder.setCinemaId(mtimePromo.getCinemaId());
+        promoOrder.setAmount(amount);
+        promoOrder.setPrice(mtimePromo.getPrice().multiply(new BigDecimal(amount)));
+        promoOrder.setStartTime(mtimePromo.getStartTime());
+        promoOrder.setEndTime(mtimePromo.getEndTime());
+        promoOrder.setExchangeCode(exchangeCode);
+
+        Integer insert = mtimePromoOrderMapper.insert(promoOrder);
+        if (insert < 1) {
+            executorService.submit(() -> mtimeStockLogMapper.updateStatusById(stockLogId, StockLogStatus.FAIL.getCode()));
+            throw new GunsException(GunsExceptionEnum.DATABASE_ERROR);
+        }
+        mtimeStockLogMapper.updateStatusById(stockLogId, StockLogStatus.SUCCESS.getCode());
+    }
+
+    @Override
+    public Integer getStatusByStockLogId(String stockLogId) {
+        return mtimeStockLogMapper.selectStatusById(stockLogId);
     }
 }

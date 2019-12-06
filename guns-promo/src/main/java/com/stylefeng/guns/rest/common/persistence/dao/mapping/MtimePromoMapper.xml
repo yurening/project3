@@ -13,4 +13,11 @@
         <result column="description" property="description" />
     </resultMap>
 
+    <update id="decreaseStock">
+        UPDATE mtime_promo_stock
+        SET stock = stock - #{amount}
+        WHERE stock >= #{amount}
+        AND promo_id = #{promoId}
+    </update>
+
 </mapper>
