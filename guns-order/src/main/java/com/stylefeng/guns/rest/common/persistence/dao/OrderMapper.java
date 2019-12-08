@@ -18,7 +18,7 @@ public interface OrderMapper {
             " from mooc_order_t o left join mtime_field_t f1 on o.field_id = f1.uuid" +
             " left join mtime_hall_film_info_t f2 on o.film_id = f2.film_id" +
             " left join mtime_cinema_t c on c.UUID = o.cinema_id " +
-            "where o.order_user = #{orderUser}"
+            "where o.order_user = #{orderUser} order by orderTimestamp desc"
     })
     List<OrderVo> orderInfo(@Param("orderUser") Integer orderUser);
 }
