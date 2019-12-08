@@ -76,12 +76,13 @@ public class AlipayServiceImpl implements AlipayService {
             objectBaseResVO.setMsg("支付成功");
         }
         else {
-            if(tryNums==3){
+            if(tryNums==10){
                 moocOrderT.setOrderStatus(2);
                 moocOrderTMapper.updateById(moocOrderT);
+                objectBaseResVO.setMsg("支付失败!");
+            }else {
+                objectBaseResVO.setStatus(1);
             }
-            objectBaseResVO.setStatus(1);
-            objectBaseResVO.setMsg("支付失败!");
         }
         moocOrderTMapper.updateById(moocOrderT);
         return objectBaseResVO;
