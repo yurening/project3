@@ -290,9 +290,9 @@ public class Main {
     }
 
     // 测试当面付2.0查询订单
-    public int test_trade_query(Integer orderId, Integer tryNums) {
+    public int test_trade_query(String orderId, Integer tryNums) {
         // (必填) 商户订单号，通过此商户订单号查询当面付的交易状态
-        String outTradeNo = orderId.toString();
+        String outTradeNo = orderId;
 
         // 创建查询请求builder，设置请求参数
         AlipayTradeQueryRequestBuilder builder = new AlipayTradeQueryRequestBuilder()
@@ -381,7 +381,7 @@ public class Main {
         /*String outTradeNo = "tradeprecreate" + System.currentTimeMillis()
                             + (long) (Math.random() * 10000000L);*/
 
-        String outTradeNo =moocOrderT.getUuid().toString();
+        String outTradeNo =moocOrderT.getUuid();
         // (必填) 订单标题，粗略描述用户的支付目的。如“xxx品牌xxx门店当面付扫码消费”
         String subject = brand + "品牌" + cinema + "门店当面付扫码消费";
 
@@ -462,8 +462,7 @@ public class Main {
                 String endPoint = "oss-cn-beijing.aliyuncs.com";
                 String[] split = filePath.split("/");
                 String fileName = split[split.length - 1];
-                File file = new File("src/main/resources/static/" + fileName);
-
+                File file = new File("src\\main\\resources\\static\\" + fileName);
                 FileInputStream fileInputStream = null;
                 try {
                     fileInputStream = new FileInputStream(file);

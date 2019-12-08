@@ -37,7 +37,7 @@ public class AlipayServiceImpl implements AlipayService {
     MtimeFilmTMapper mtimeFilmTMapper;
 
     @Override
-    public BaseResVO getPayInfo(Integer orderId) {
+    public BaseResVO getPayInfo(String orderId) {
         Main main = new Main();
         //在数据库中查询出订单详情
         EntityWrapper<MoocOrderT> objectEntityWrapper = new EntityWrapper<>();
@@ -59,7 +59,7 @@ public class AlipayServiceImpl implements AlipayService {
     }
 
     @Override
-    public BaseResVO getPayResult(Integer orderId, Integer tryNums) {
+    public BaseResVO getPayResult(String orderId, Integer tryNums) {
         Main main = new Main();
         int status = main.test_trade_query(orderId, tryNums);
         MoocOrderT moocOrderT = moocOrderTMapper.selectById(orderId);

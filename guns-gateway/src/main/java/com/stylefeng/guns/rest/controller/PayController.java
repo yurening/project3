@@ -13,13 +13,13 @@ public class PayController {
     @Reference(interfaceClass = AlipayService.class,check=false)
     AlipayService alipayService;
     @RequestMapping("getPayInfo")
-    public BaseResVO getPayInfo(Integer orderId){
+    public BaseResVO getPayInfo(String orderId){
         BaseResVO payInfo = alipayService.getPayInfo(orderId);
         return payInfo;
     }
 
     @RequestMapping("getPayResult")
-    public BaseResVO getPayResult(Integer orderId,Integer tryNums){
+    public BaseResVO getPayResult(String orderId,Integer tryNums){
         BaseResVO payResult = alipayService.getPayResult(orderId, tryNums);
         return payResult;
     }
