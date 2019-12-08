@@ -41,7 +41,7 @@ public class MqProducer {
         hashMap.put("orderId",moocOrderT.getUuid());
         String s = JSON.toJSONString(hashMap);
         Message message = new Message(topic,s.getBytes(Charset.forName("utf-8")));
-        message.setDelayTimeLevel(14);
+        message.setDelayTimeLevel(3);
         try {
             SendResult send = producer.send(message);
             System.out.println(send);
