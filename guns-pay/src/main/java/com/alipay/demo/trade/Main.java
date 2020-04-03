@@ -455,9 +455,8 @@ public class Main {
                         response.getOutTradeNo());
                 log.info("filePath:" + filePath);
                 ZxingUtils.getQRCodeImge(response.getQrCode(), 256, filePath);
-                //阿里云
-                String accessKeyId = "LTAI4FkEFjiCLX5NWuaCreE7";
-                String accessSecret = "thisSIrvhvbgp0AE0joz5ZwEe4m0Q2";
+                //阿里云一些私密key
+          
                 String bucket = "mall2";
                 String endPoint = "oss-cn-beijing.aliyuncs.com";
                 String[] split = filePath.split("/");
