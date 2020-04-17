@@ -455,10 +455,6 @@ public class Main {
                         response.getOutTradeNo());
                 log.info("filePath:" + filePath);
                 ZxingUtils.getQRCodeImge(response.getQrCode(), 256, filePath);
-                //阿里云一些私密key
-          
-                String bucket = "mall2";
-                String endPoint = "oss-cn-beijing.aliyuncs.com";
                 String[] split = filePath.split("/");
                 String fileName = split[split.length - 1];
                 File file = new File("src\\main\\resources\\static\\" + fileName);
